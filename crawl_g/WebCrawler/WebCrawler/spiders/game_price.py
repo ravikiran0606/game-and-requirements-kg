@@ -33,10 +33,14 @@ def info_extractor(prod):
 
 def level_one_parser(soup_next):
     desc = []
+    zipped_list = []
+    min_r = {}
+    recom_r = {}
     best_seller = soup_next.find('div',class_ = 'seller-info')
     best_seller_price_info = soup_next.find('div',class_ = 'product-page-v2-price payments__price product-page-v2-price--large')
     seller_name = best_seller.find('span',class_ = 'seller-info__user')
     unstruct_soup = soup_next.find('div',class_='product-section__content__content--default-section')
+    require_soup = soup_next.find('div',{'data-name' : 'Windows' } )
     if seller_name != None:
         seller_name = seller_name.get_text()
     seller_rating = best_seller.find('span',class_ = 'seller-info__percent')
@@ -59,7 +63,27 @@ def level_one_parser(soup_next):
         if para is not None:
             for p in para:
                 desc.append((p.get_text()))
-    return seller_name,seller_rating,seller_feedback_msg,seller_price,seller_old_price,seller_discount,desc
+    if require_soup is not None:
+        print('y1')
+        min_recom_soup = require_soup.find_all('ul')
+        if min_recom_soup is not None:
+            print('y2')
+            print(min_recom_soup)
+            for i,ul in enumerate(min_recom_soup):
+                print('y3')
+                zipped_list = list(zip(ul.find_all('span',class_ = 'attributes-list__name'),ul.find_all('span',class_ = 'attributes-list__value')))
+                if i == 0:
+                    for val in zipped_list:
+                        key = val[0].get_text()
+                        value = val[1].get_text()
+                        min_r[key] = value
+                if i == 1:
+                    for val in zipped_list:
+                        key = val[0].get_text()
+                        value = val[1].get_text()
+                        recom_r[key] = value
+
+    return seller_name,seller_rating,seller_feedback_msg,seller_price,seller_old_price,seller_discount,desc,min_r,recom_r
 
 
 
@@ -68,7 +92,7 @@ class imdb_spider(scrapy.Spider):
     name = 'game_cost_scraper'
     urls = ['https://www.g2a.com/en-us/category/gaming-c1']
     allowed_domains = ['g2a.com']
-    for it in range(2,1500, 1):
+    for it in range(2,6, 1):
         urls.append('https://www.g2a.com/en-us/category/gaming-c1?page={}'.format(it))
 
     custom_settings = {
@@ -97,7 +121,7 @@ class imdb_spider(scrapy.Spider):
 
                     d = {'title': '', 'price': '', 'url': '', 'seller_name': '', 'seller_rating': '',
                          'seller_feedback_msg':'','seller_price':'','seller_old_price':'','seller_discount':'',
-                         'old_price': '' , 'discount': '','img_url':'','desc' : ''}
+                         'old_price': '' , 'discount': '','min_requirements':'','recommended_requirements':'','img_url':'','desc' : ''}
                     title,price,old_price,discount,url_page,img_url = info_extractor(prod)
                     url_follow = response.urljoin(url_page)
                     d['title'] = title
@@ -118,7 +142,7 @@ class imdb_spider(scrapy.Spider):
                 #print('yes')
                 #drum = {'seller_name':'' , "seller_rating":''}
                 soup_next = BeautifulSoup(response.text,'html.parser')
-                seller_name,seller_rating,seller_feedback_msg,seller_price,seller_old_price,seller_discount,desc = level_one_parser(soup_next)
+                seller_name,seller_rating,seller_feedback_msg,seller_price,seller_old_price,seller_discount,desc,min_r,recom_r = level_one_parser(soup_next)
                 response.meta['seller_name'] = seller_name
                 response.meta['seller_rating'] = seller_rating
                 response.meta['seller_feedback_msg'] = seller_feedback_msg
@@ -126,10 +150,13 @@ class imdb_spider(scrapy.Spider):
                 response.meta['seller_old_price'] = seller_old_price
                 response.meta['seller_discount'] = seller_discount
                 response.meta['desc'] = desc
+                response.meta['min_requirements'] = min_r
+                response.meta['recommended_requirements'] = recom_r
                 yield {"title": response.meta['title'], "price": response.meta['price'], "url": response.meta['url'],
                        "seller_name":response.meta['seller_name'],"seller_rating":response.meta['seller_rating'],
                        'seller_feedback_msg':response.meta['seller_feedback_msg'],'seller_price':response.meta['seller_price'],
                        'seller_old_price':response.meta['seller_old_price'],'seller_discount':response.meta['seller_discount']
-                       ,"old_price":response.meta['old_price'],"discount":response.meta['discount'],"img_url":response.meta['img_url'],
-                       'desc':response.meta['desc']}
+                       ,"old_price":response.meta['old_price'],"discount":response.meta['discount'],
+                       "min_requirements":response.meta['min_requirements'],"recommended_requirements":response.meta['recommended_requirements'],
+                       "img_url":response.meta['img_url'],'desc':response.meta['desc']}
 
