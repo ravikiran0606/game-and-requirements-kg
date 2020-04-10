@@ -13,6 +13,10 @@ from urllib.parse import urlparse
 
 
 def info_extractor(prod):
+    """
+    :param prod: soup object for game
+    :return: surface level info - title of game, new price, url, discount, old price, logo of the game
+    """
     title_soup = prod.find('h3',class_ = "Card__title")
     title = title_soup.find('a')
     if title is not None:
@@ -32,6 +36,11 @@ def info_extractor(prod):
     return title,price,old_price,discount,url_page,img_url
 
 def level_one_parser(soup_next):
+    """
+    :param soup_next: soup object for depth 1 page of the game
+    :return: seller name, seller rating, seller feedback message, price of the game sold by the seller, old price of the game,
+    discount provided by the seller, description of the game, minimum requirements of the game, recommended requirements
+    """
     desc = []
     zipped_list = []
     min_r = {}
@@ -111,7 +120,10 @@ class imdb_spider(scrapy.Spider):
             yield scrapy.Request(url,callback = self.game_parser)
 
     def game_parser(self, response):
-
+        '''
+        :param response: is the crawled page by scrapy spider
+        :yields: jsonline for each game with various attributes like game name, seller information, requirements
+        '''
 
         if response.status == 200:
             if response.meta['depth'] == 0:
@@ -131,12 +143,6 @@ class imdb_spider(scrapy.Spider):
                     d['url'] = url_follow
                     d['img_url'] = img_url
                     yield response.follow(url_follow,self.game_parser,meta = d)
-                    #print('r')
-                    #print(type(drum))
-                    #print(drum)
-                    #d['seller_name'] = drum['seller_name']
-                    #d['seller_rating'] = drum['seller_rating']
-                    #yield d
 
             if response.meta['depth'] == 1:
                 #print('yes')
