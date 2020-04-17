@@ -67,13 +67,7 @@ def er_task(block):
                     similar[key].append({(igdb_game_key, igdb_game_name): ('', '', -1)})
     print("total time taken: ", time.time() - st)
 
-                    g2a_block_key = re.sub(' ', '', g2a_game_name)
-                    g2a_block_key = g2a_block_key.lower()
-                    first_word = g2a_block_key[:3]
-                    if first_word == 'the':
-                        first_word = g2a_block_key[3:6]
-                    block_key = first_word
-                    block[block_key][1].append({key: g2a_game_name})
+                    
 
 if __name__ == '__main__':
     block = create_block()
