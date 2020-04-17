@@ -9,11 +9,19 @@ def create_block():
             block = defaultdict(lambda: [[], []])
             for igdb_obj in reader:
                 for key, val in igdb_obj.items():
-                    game_name = re.sub('DUPLICATE', '', val['game_name'])
-                    game_name = re.sub('\[.*?\]', '', game_name)
+                    game_name = val['game_name']
+                    if 'DUPLICATE' in game_name or 'duplicate' in game_name or 'Duplicate':
+                        print('dup present')
+                        game_name = re.sub('DUPLICATE', '', game_name)
+                        game_name = re.sub('duplicate', '', game_name)
+                        game_name = re.sub('Duplicate', '', game_name)
+                        game_name = re.sub('\[.*?\]', '', game_name)
+                        #print(game_name)
                     # game_name = re.sub('[^a-zA-Z0-9 \n\.]','',game_name)
                     if game_name.startswith(' '):
+                        #print('starts with space')
                         game_name = game_name[1:]
+                        #print(game_name)
                     gen_block_key = re.sub(' ', '', game_name)
                     gen_block_key = gen_block_key.lower()
                     first_word = gen_block_key[:3]
@@ -38,6 +46,9 @@ def create_block():
                         first_word = g2a_block_key[3:6]
                     block_key = first_word
                     block[block_key][1].append({key: g2a_game_name})
+                    '''else:
+                      block_key = val['title'].split(' ')[1].lower()[:3]
+                      block[block_key][1].append({key:val['title']})'''
     return block
 
 def er_task(block):
@@ -66,9 +77,30 @@ def er_task(block):
                 else:
                     similar[key].append({(igdb_game_key, igdb_game_name): ('', '', -1)})
     print("total time taken: ", time.time() - st)
+    return similar
 
-                    
+def write_result_to_jl(similar):
+    with jsonlines.open('er_g2a_igdb_levenshtein_rijul_v2.jl', 'w') as writer:
+        for key, val in similar.items():
+            # print(val)
+            for obj in val:
+                # print(obj)
+                obj_to_write = {"igdb_key": '', 'igdb_game_name': '', 'similar_g2a_key': '','similar_g2a_game_name': ''}
+                # k,v = list(obj)[0][0],list(obj)[0][1]
+                # obj = {list(obj)[0][0],list(obj)[0][1]}
+                # obj_to_write = dict({k[0]:k[1],'similar':{v[0],v[1],v[2]}})
+                # print(type(list(obj)[0][0]))
+                # print(list(obj.items()))
+
+                obj_to_write['igdb_key'] = list(obj.items())[0][0][0]
+                obj_to_write['igdb_game_name'] = list(obj.items())[0][0][1]
+                obj_to_write['similar_g2a_key'] = list(obj.items())[0][1][0]
+                obj_to_write['similar_g2a_game_name'] = list(obj.items())[0][1][1]
+                obj_to_write['similarity_score'] = list(obj.items())[0][1][2]
+                writer.write(obj_to_write)
+
 
 if __name__ == '__main__':
     block = create_block()
-    er_task(block)
+    similar = er_task(block)
+    write_result_to_jl(similar)
