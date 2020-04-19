@@ -1,0 +1,116 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix mgns: <http://inf558.org/games#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+mgns:Enterprise a rdfs:Class ;
+    mgns:bestRating xsd:decimal ;
+    mgns:ratingCount xsd:integer ;
+    mgns:ratingValue xsd:decimal ;
+    schema:foundingDate xsd:date ;
+    schema:foundingLocation schema:Place ;
+    schema:logo schema:URL ;
+    schema:name schema:Text ;
+    schema:url schema:URL ;
+    rdfs:subClassOf schema:Organisation .
+
+mgns:Game a rdfs:Class ;
+    mgns:bestRating xsd:decimal ;
+    mgns:developedBy mgns:Enterprise ;
+    mgns:discount schema:Text ;
+    mgns:hasGameMode mgns:GameMode ;
+    mgns:hasGenre mgns:Genre ;
+    mgns:hasMSD mgns:MSD ;
+    mgns:hasTheme mgns:Theme ;
+    mgns:oldPrice schema:Text ;
+    mgns:price schema:Text ;
+    mgns:publishedBy mgns:Enterprise ;
+    mgns:ratingCount xsd:integer ;
+    mgns:ratingValue xsd:decimal ;
+    mgns:sellerFeedback schema:Text ;
+    mgns:sellerUrl schema:Text ;
+    mgns:soldBy mgns:Seller ;
+    mgns:supportedPlatform mgns:Platform ;
+    schema:datePublished schema:date ;
+    schema:description schema:Text ;
+    schema:name schema:Text ;
+    schema:url schema:URL ;
+    rdfs:subClassOf schema:Game .
+
+mgns:GameMode a rdfs:Class ;
+    rdfs:label "Game Mode" .
+
+mgns:Genre a rdfs:Class ;
+    rdfs:label "Genre" .
+
+mgns:Graphics a rdfs:Class ;
+    mgns:ROPs xsd:integer ;
+    mgns:TMUs xsd:integer ;
+    mgns:gpuChip schema:Text ;
+    mgns:gpuClockSpeed schema:Text ;
+    mgns:gpuMemory schema:Text ;
+    mgns:memoryClockSpeed schema:Text ;
+    mgns:shader_1 xsd:integer ;
+    mgns:shader_2 xsd:integer ;
+    schema:datePublished schema:date ;
+    schema:name schema:Text .
+
+mgns:MSD a rdfs:Class ;
+    mgns:diskSpace schema:Text ;
+    mgns:graphics mgns:Graphics ;
+    mgns:memory schema:Text ;
+    mgns:processor mgns:Processor .
+
+mgns:Platform a rdfs:Class ;
+    mgns:cpu schema:Text ;
+    mgns:memory schema:Text ;
+    mgns:operatingSystem schema:Text ;
+    mgns:platformName schema:Text ;
+    mgns:platformType schema:Text ;
+    mgns:storage schema:Text ;
+    mgns:supportedResolution schema:Text .
+
+mgns:Processor a rdfs:Class ;
+    mgns:l3Cache schema:Text ;
+    mgns:numCores schema:Text ;
+    mgns:process schema:Text ;
+    mgns:processorClockSpeed schema:Text ;
+    mgns:socket schema:Text ;
+    schema:name schema:Text .
+
+mgns:Seller a rdfs:Class ;
+    mgns:ratingValue xsd:decimal ;
+    schema:name schema:Text ;
+    rdfs:subClassOf schema:seller .
+
+mgns:Theme a rdfs:Class ;
+    rdfs:label "Theme" .
+
+mgns:developedBy a rdf:Property ;
+    rdfs:label "Developed By"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:Enterprise .
+
+mgns:hasGameMode a rdf:Property ;
+    rdfs:label "Has Game"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:GameMode .
+
+mgns:hasMSD a rdf:Property ;
+    rdfs:label "Minimum Supporting Device"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:MSD .
+
+mgns:publishedBy a rdf:Property ;
+    rdfs:label "Published By"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:Enterprise .
+
+mgns:supportedPlatform a rdf:Property ;
+    rdfs:label "Supported Platform"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:Platform .
+
