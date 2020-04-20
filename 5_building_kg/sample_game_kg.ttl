@@ -63,9 +63,9 @@ mgns:Graphics a rdfs:Class ;
     schema:url schema:URL .
 
 mgns:MSD a rdfs:Class ;
-    mgns:diskSpace schema:Text ;
+    mgns:diskSpace_MB schema:Text ;
     mgns:graphics mgns:Graphics ;
-    mgns:memory schema:Text ;
+    mgns:memory_MB schema:Text ;
     mgns:processor mgns:Processor .
 
 mgns:Platform a rdfs:Class ;
@@ -110,15 +110,46 @@ mgns:hasGenre a rdf:Property ;
     rdfs:domain mgns:Game ;
     rdfs:range mgns:Genre .
 
-mgns:hasMSD a rdf:Property ;
-    rdfs:label "Minimum Supporting Device"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:MSD .
-
 mgns:hasTheme a rdf:Property ;
     rdfs:label "Has Theme"@en ;
     rdfs:domain mgns:Theme ;
     rdfs:range mgns:Genre .
+
+mgns:mgns_igdb_companies_0 a mgns:Enterprise ;
+    mgns:bestRating 1e+02 ;
+    mgns:ratingCount 2 ;
+    mgns:ratingValue 0e+00 ;
+    schema:logo "https://images.igdb.com/igdb/image/upload/t_logo_med/nocover_qhhlj6.jpg"@en ;
+    schema:name "100Hr Games"@en ;
+    schema:url "https://www.igdb.com/companies/100hr-games"@en .
+
+mgns:mgns_igdb_platforms_0 a mgns:Platform ;
+    mgns:platformName "PlayStation 5"@en ;
+    mgns:platformType "Console"@en .
+
+mgns:mgns_techpowerup_cpu_0 a mgns:Processor ;
+    mgns:l3Cache "128MB"@en ;
+    mgns:numCores "64  / 128"@en ;
+    mgns:process "7 nm"@en ;
+    mgns:processorClockSpeed "2.9 to 4.3 GHz"@en ;
+    mgns:socket "Socket TR4"@en ;
+    schema:name "Ryzen Threadripper 3990X"@en .
+
+mgns:mgns_techpowerup_gpu_0 a mgns:Graphics ;
+    mgns:ROPs 1 ;
+    mgns:TMUs 0 ;
+    mgns:bus "PCI"@en ;
+    mgns:datePublished 1986 ;
+    mgns:gpuChip "CW16800-A"@en ;
+    mgns:gpuClockSpeed_MHz 10 ;
+    mgns:gpuMemoryBits 32 ;
+    mgns:gpuMemorySize_MB 0 ;
+    mgns:gpuMemoryType "DRAM"@en ;
+    mgns:memoryClockSpeed_MHz 10 ;
+    mgns:shader_1 1 ;
+    mgns:shader_2 0 ;
+    schema:name "Graphics Solution"@en ;
+    schema:url "https://www.techpowerup.com/gpu-specs/graphics-solution.c3176"@en .
 
 mgns:publishedBy a rdf:Property ;
     rdfs:label "Published By"@en ;
@@ -129,4 +160,31 @@ mgns:supportedPlatform a rdf:Property ;
     rdfs:label "Supported Platform"@en ;
     rdfs:domain mgns:Game ;
     rdfs:range mgns:Platform .
+
+<mgns_igdb_games_10> a mgns:Game ;
+    mgns:hasMSD [ a mgns:hasMSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics <mgns_techpowerup_gpu_7> ;
+            mgns:memory_MB 2048 ;
+            mgns:processor <mgns_techpowerup_cpu_1341> ],
+        [ a mgns:hasMSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics <mgns_techpowerup_gpu_2417> ;
+            mgns:memory_MB 2048 ;
+            mgns:processor <mgns_techpowerup_cpu_1341> ],
+        [ a mgns:hasMSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics <mgns_techpowerup_gpu_2417> ;
+            mgns:memory_MB 2048 ;
+            mgns:processor <mgns_techpowerup_cpu_4> ],
+        [ a mgns:hasMSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics <mgns_techpowerup_gpu_7> ;
+            mgns:memory_MB 2048 ;
+            mgns:processor <mgns_techpowerup_cpu_4> ] .
+
+mgns:hasMSD a rdf:Property ;
+    rdfs:label "Minimum Supporting Device"@en ;
+    rdfs:domain mgns:Game ;
+    rdfs:range mgns:MSD .
 

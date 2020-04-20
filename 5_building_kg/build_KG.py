@@ -1,5 +1,5 @@
 # Libraries Included:
-from rdflib import Graph, URIRef, Literal, XSD, Namespace, RDF, RDFS
+from rdflib import Graph, URIRef, BNode, Literal, XSD, Namespace, RDF, RDFS
 import json
 import datetime
 import jsonlines
@@ -85,8 +85,8 @@ class GameKG:
         self.my_kg.add((self.msd_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.msd_global, self.MGNS['processor'], self.processor_global))
         self.my_kg.add((self.msd_global, self.MGNS['graphics'], self.graphics_global))
-        self.my_kg.add((self.msd_global, self.MGNS['memory'], self.SCHEMA['Text']))
-        self.my_kg.add((self.msd_global, self.MGNS['diskSpace'], self.SCHEMA['Text']))
+        self.my_kg.add((self.msd_global, self.MGNS['memory_MB'], self.SCHEMA['Text']))
+        self.my_kg.add((self.msd_global, self.MGNS['diskSpace_MB'], self.SCHEMA['Text']))
 
         ### Additional Classes ###
         self.game_mode_global = URIRef(self.MGNS['GameMode'])
@@ -377,8 +377,49 @@ class GameKG:
     def addThemeInstance(self, theme_instance):
         pass
 
-    def addGameInstance(self, igdb_game_id, igdb_game, g2a_game_id, g2a_game, gpu_list, cpu_list):
-        pass
+    def __convertSizeToMB(self, cur_size):
+        cur_size = cur_size.lower()
+        cur_val = ""
+        for cur_char in cur_size:
+            if cur_char.isdigit():
+                cur_val += cur_char
+            else:
+                break
+
+        cur_val = int(cur_val)
+        cur_unit = cur_size
+
+        if "kb" in cur_unit:
+            cur_val /= 1024
+        elif "gb" in cur_unit:
+            cur_val *= 1024
+        elif "tb" in cur_unit:
+            cur_val *= (1024 * 1024)
+
+        return cur_val
+
+    def addGameInstance(self, igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list):
+        cur_uri = URIRef(igdb_game_id)
+        self.my_kg.add((cur_uri, RDF.type, self.game_global))
+
+        try:
+            disk_space = g2a_game["min_requirements"]["Disk space"]
+            disk_space_val = self.__convertSizeToMB(disk_space)
+            memory = g2a_game["min_requirements"]["Memory"]
+            memory_val = self.__convertSizeToMB(memory)
+
+            for cur_cpu_uri in cpu_list:
+                for cur_gpu_uri in gpu_list:
+                    cur_msd_node = BNode()
+                    self.my_kg.add((cur_msd_node, RDF.type, self.msd_global))
+                    self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(cur_cpu_uri)))
+                    self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(cur_gpu_uri)))
+                    self.my_kg.add((cur_msd_node, self.MGNS['memory_MB'], Literal(memory_val)))
+                    self.my_kg.add((cur_msd_node, self.MGNS['diskSpace_MB'], Literal(disk_space_val)))
+
+                    self.my_kg.add((cur_uri, self.MGNS["hasMSD"], cur_msd_node))
+        except:
+            pass
 
 def constructDictfromJL(json_lines_file):
     result_dict = {}
@@ -414,22 +455,22 @@ def createMAPforGPU(json_lines_file):
     return result_dict
 
 def createMAPforCPU(json_lines_file):
-    score_threshold = 0.75
+    score_threshold = 1.2
     result_dict = {}
     with open(json_lines_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
-            key = cur_dict["g2a_games_id"]
+            key = cur_dict["g2_games_id"]
             val = []
 
-            cpu1 = cur_dict["tpowerup_gpu1"]
-            cpu2 = cur_dict["tpowerup_gpu2"]
+            cpu1 = cur_dict["tpowerup_cpu1"]
+            cpu2 = cur_dict["tpowerup_cpu2"]
             if bool(cpu1):
-                if cpu1["max_score"] >= score_threshold:
+                if cpu1["max_match_score"] >= score_threshold:
                     val.append(cpu1["max_match_id"])
 
             if bool(cpu2):
-                if cpu2["max_score"] >= score_threshold:
+                if cpu2["max_match_score"] >= score_threshold:
                     val.append(cpu2["max_match_id"])
 
             result_dict[key] = val
@@ -474,7 +515,7 @@ if __name__ == "__main__":
     igdb_games_file = "../../data_with_ids/igdb_games.jl"
     er_g2a_igdb_file = "../../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4_short.jl"
     er_g2a_gpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
-    er_g2a_cpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
+    er_g2a_cpu_file = "../../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
 
     g2a_games = constructDictfromJL(g2a_games_file)
     igdb_games = constructDictfromJL(igdb_games_file)
@@ -484,16 +525,19 @@ if __name__ == "__main__":
     with open(er_g2a_igdb_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
-            igdb_game_id = cur_dict["igdb_key"]
+
+            # igdb_game_id = cur_dict["igdb_key"]
+            igdb_game_id = "mgns_igdb_games_10"
             igdb_game = igdb_games[igdb_game_id]
 
-            g2a_game_id = cur_dict["similar_g2a_key"]
+            # g2a_game_id = cur_dict["similar_g2a_key"]
+            g2a_game_id = "mgns_g2a_games_with_requirements_10"
             g2a_game = g2a_games[g2a_game_id]
 
             gpu_list = er_g2a_gpu[g2a_game_id]
             cpu_list = er_g2a_cpu[g2a_game_id]
 
-            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game_id, g2a_game, gpu_list, cpu_list)
+            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list)
             break
 
     my_game_kg.storeKG("sample_game_kg.ttl")
