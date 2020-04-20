@@ -153,6 +153,22 @@ class GameKG:
         self.my_kg.add((self.has_game_mode_global, RDFS.domain, self.MGNS['Game']))
         self.my_kg.add((self.has_game_mode_global, RDFS.range, self.MGNS['GameMode']))
 
+        self.has_genre_global = URIRef(self.MGNS["hasGenre"])
+        self.my_kg.add((self.has_genre_global, RDF.type, RDF.Property))
+        self.my_kg.add((self.has_genre_global, RDFS.label, Literal("Has Genre", lang="en")))
+        self.my_kg.add((self.has_genre_global, RDFS.domain, self.MGNS['Game']))
+        self.my_kg.add((self.has_genre_global, RDFS.range, self.MGNS['Genre']))
+
+        self.has_theme_global = URIRef(self.MGNS["hasTheme"])
+        self.my_kg.add((self.has_theme_global, RDF.type, RDF.Property))
+        self.my_kg.add((self.has_theme_global, RDFS.label, Literal("Has Theme", lang="en")))
+        self.my_kg.add((self.has_theme_global, RDFS.domain, self.MGNS['Theme']))
+        self.my_kg.add((self.has_theme_global, RDFS.range, self.MGNS['Genre']))
+
+
+
+
+
     def define_ontology(self):
         self.define_classes()
         self.define_properties()
@@ -197,7 +213,55 @@ class GameKG:
         pass
 
     def addPlatformInstance(self, platform_instance):
-        pass
+        cur_uri = URIRef(self.MGNS[list(platform_instance.keys())[0]])
+        cur_val = list(platform_instance.values())[0]
+        self.my_kg.add((cur_uri, RDF.type, self.platform_global))
+        self.my_kg.add((cur_uri,self.MGNS['platformName'],Literal(cur_val['platform_name'],lang = "en")))
+
+        try:
+            if len(cur_val['PLATFORM TYPE']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['platformType'],Literal(cur_val['PLATFORM TYPE'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['PLATFORM TYPE']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['platformType'],Literal(cur_val['PLATFORM TYPE'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Operating System']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['operatingSystem'],Literal(cur_val['Operating System'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Memory']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['memory'],Literal(cur_val['Operating System'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['CPU']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['CPU'],Literal(cur_val['CPU'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Storage']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['storage'],Literal(cur_val['Storage'],lang = "en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Supported Resolutions']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['supportedResolution'],Literal(cur_val['Supported Resolutions'],lang = "en")))
+        except:
+            pass
+
+
+
 
     def addProcessorInstance(self, processor_instance):
         pass
