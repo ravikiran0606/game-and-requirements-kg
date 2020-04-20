@@ -1,5 +1,8 @@
 # Libraries Included:
 from rdflib import Graph, URIRef, Literal, XSD, Namespace, RDF, RDFS
+import json
+import datetime
+import jsonlines
 
 class GameKG:
     def __init__(self):
@@ -29,7 +32,7 @@ class GameKG:
         self.my_kg.add((self.enterprise_global, self.SCHEMA['foundingDate'], XSD.date))
         self.my_kg.add((self.enterprise_global, self.SCHEMA['foundingLocation'], self.SCHEMA['Place']))
 
-        ## Seller CLASS ##
+        ## Seller Class ##
         self.seller_global = URIRef(self.MGNS['Seller'])
         self.my_kg.add((self.seller_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.seller_global, RDFS.subClassOf, self.SCHEMA["seller"]))
@@ -48,7 +51,7 @@ class GameKG:
         self.my_kg.add((self.platform_global, self.MGNS['storage'], self.SCHEMA['Text']))
         self.my_kg.add((self.platform_global, self.MGNS['supportedResolution'], self.SCHEMA['Text']))
 
-        ## Processor class ##
+        ## Processor Class ##
         self.processor_global = URIRef(self.MGNS["Processor"])
         self.my_kg.add((self.processor_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.processor_global, self.SCHEMA['name'], self.SCHEMA['Text']))
@@ -58,7 +61,7 @@ class GameKG:
         self.my_kg.add((self.processor_global, self.MGNS['socket'], self.SCHEMA['Text']))
         self.my_kg.add((self.processor_global, self.MGNS['process'], self.SCHEMA['Text']))
 
-        ## Graphics class ##
+        ## Graphics Class ##
         self.graphics_global = URIRef(self.MGNS["Graphics"])
         self.my_kg.add((self.graphics_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.graphics_global, self.SCHEMA['name'], self.SCHEMA['Text']))
@@ -72,7 +75,7 @@ class GameKG:
         self.my_kg.add((self.graphics_global, self.MGNS['TMUs'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['ROPs'], XSD.integer))
 
-        ## Minimum Supporting Device class ##
+        ## Minimum Supporting Device Class ##
         self.msd_global = URIRef(self.MGNS["MSD"])
         self.my_kg.add((self.msd_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.msd_global, self.MGNS['processor'], self.processor_global))
@@ -93,7 +96,7 @@ class GameKG:
         self.my_kg.add((self.theme_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.theme_global, RDFS.label, Literal("Theme")))
 
-        ## Game class ##
+        ## Game Class ##
         self.game_global = URIRef(self.MGNS["Game"])
         self.my_kg.add((self.game_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.game_global, RDFS.subClassOf, self.SCHEMA["Game"]))
@@ -157,17 +160,76 @@ class GameKG:
     def storeKG(self, kg_file_name):
         self.my_kg.serialize(kg_file_name, format="turtle")
 
+    def addEnterpriseInstance(self, enterprise_instance):
+        cur_uri = URIRef(self.MGNS[list(enterprise_instance.keys())[0]])
+        cur_val = list(enterprise_instance.values())[0]
+        self.my_kg.add((cur_uri, RDF.type, self.enterprise_global))
+        self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["company_name"], lang="en")))
+
+        try:
+            self.my_kg.add((cur_uri, self.MGNS['ratingValue'], Literal(float(cur_val["rating_value"]))))
+        except:
+            pass
+
+        try:
+            self.my_kg.add((cur_uri, self.MGNS['ratingCount'], Literal(int(cur_val["num_ratings"]))))
+        except:
+            pass
+
+        try:
+            self.my_kg.add((cur_uri, self.MGNS['bestRating'], Literal(float(cur_val["best_rating"]))))
+        except:
+            pass
+
+        if len(cur_val["logo_url"]) != 0:
+            self.my_kg.add((cur_uri, self.SCHEMA['logo'], Literal(cur_val["logo_url"], lang="en")))
+
+        if len(cur_val["url"]) != 0:
+            self.my_kg.add((cur_uri, self.SCHEMA['url'], Literal(cur_val["url"], lang="en")))
+
+        if len(cur_val["founding_date"]) != 0:
+            self.my_kg.add((cur_uri, self.SCHEMA['foundingDate'], Literal(cur_val["founding_date"], lang="en")))
+
+        if len(cur_val["founding_country"]) != 0:
+            self.my_kg.add((cur_uri, self.SCHEMA['foundingLocation'], Literal(cur_val["founding_country"], lang="en")))
+
+    def addSellerInstance(self):
+        pass
+
+    def addPlatformInstance(self, platform_instance):
+        pass
+
+    def addProcessorInstance(self, processor_instance):
+        pass
+
+    def addGraphicsInstance(self, graphics_instance):
+        pass
+
+    def addMSDInstance(self, msd_instance):
+        pass
+
+    def addGameModeInstance(self, game_mode_instance):
+        pass
+
+    def addGenreInstance(self, genre_instance):
+        pass
+
+    def addThemeInstance(self, theme_instance):
+        pass
+
+    def addGameInstance(self, game_instance):
+        pass
 
 if __name__ == "__main__":
     my_game_kg = GameKG()
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
+
+    igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
+    with open(igdb_companies_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addEnterpriseInstance(cur_dict)
+            break
+
     my_game_kg.storeKG("sample_game_kg.ttl")
-
-
-
-
-
-
-
-

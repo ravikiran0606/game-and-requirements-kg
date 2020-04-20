@@ -104,6 +104,14 @@ mgns:hasMSD a rdf:Property ;
     rdfs:domain mgns:Game ;
     rdfs:range mgns:MSD .
 
+mgns:mgns_igdb_companies_0 a mgns:Enterprise ;
+    mgns:bestRating 1e+02 ;
+    mgns:ratingCount 2 ;
+    mgns:ratingValue 0e+00 ;
+    schema:logo "https://images.igdb.com/igdb/image/upload/t_logo_med/nocover_qhhlj6.jpg"@en ;
+    schema:name "100Hr Games"@en ;
+    schema:url "https://www.igdb.com/companies/100hr-games"@en .
+
 mgns:publishedBy a rdf:Property ;
     rdfs:label "Published By"@en ;
     rdfs:domain mgns:Game ;
