@@ -377,8 +377,63 @@ class GameKG:
     def addThemeInstance(self, theme_instance):
         pass
 
-    def addGameInstance(self, game_instance):
+    def addGameInstance(self, igdb_game_id, igdb_game, g2a_game_id, g2a_game, gpu_list, cpu_list):
         pass
+
+def constructDictfromJL(json_lines_file):
+    result_dict = {}
+    with open(json_lines_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            key = list(cur_dict.keys())[0]
+            val = list(cur_dict.values())[0]
+            result_dict[key] = val
+
+    return result_dict
+
+def createMAPforGPU(json_lines_file):
+    score_threshold = 0.75
+    result_dict = {}
+    with open(json_lines_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            key = cur_dict["g2a_games_id"]
+            val = []
+
+            gpu1 = cur_dict["tpowerup_gpu1"]
+            gpu2 = cur_dict["tpowerup_gpu2"]
+            if bool(gpu1):
+                if gpu1["max_score"] >= score_threshold:
+                    val.append(gpu1["max_match_id"])
+
+            if bool(gpu2):
+                if gpu2["max_score"] >= score_threshold:
+                    val.append(gpu2["max_match_id"])
+
+            result_dict[key] = val
+    return result_dict
+
+def createMAPforCPU(json_lines_file):
+    score_threshold = 0.75
+    result_dict = {}
+    with open(json_lines_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            key = cur_dict["g2a_games_id"]
+            val = []
+
+            cpu1 = cur_dict["tpowerup_gpu1"]
+            cpu2 = cur_dict["tpowerup_gpu2"]
+            if bool(cpu1):
+                if cpu1["max_score"] >= score_threshold:
+                    val.append(cpu1["max_match_id"])
+
+            if bool(cpu2):
+                if cpu2["max_score"] >= score_threshold:
+                    val.append(cpu2["max_match_id"])
+
+            result_dict[key] = val
+    return result_dict
 
 if __name__ == "__main__":
     my_game_kg = GameKG()
@@ -413,5 +468,32 @@ if __name__ == "__main__":
             my_game_kg.addProcessorInstance(cur_dict)
             break
 
+
+    # Adding Games:
+    g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
+    igdb_games_file = "../../data_with_ids/igdb_games.jl"
+    er_g2a_igdb_file = "../../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4_short.jl"
+    er_g2a_gpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
+    er_g2a_cpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
+
+    g2a_games = constructDictfromJL(g2a_games_file)
+    igdb_games = constructDictfromJL(igdb_games_file)
+    er_g2a_gpu = createMAPforGPU(er_g2a_gpu_file)
+    er_g2a_cpu = createMAPforCPU(er_g2a_cpu_file)
+
+    with open(er_g2a_igdb_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            igdb_game_id = cur_dict["igdb_key"]
+            igdb_game = igdb_games[igdb_game_id]
+
+            g2a_game_id = cur_dict["similar_g2a_key"]
+            g2a_game = g2a_games[g2a_game_id]
+
+            gpu_list = er_g2a_gpu[g2a_game_id]
+            cpu_list = er_g2a_cpu[g2a_game_id]
+
+            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game_id, g2a_game, gpu_list, cpu_list)
+            break
 
     my_game_kg.storeKG("sample_game_kg.ttl")
