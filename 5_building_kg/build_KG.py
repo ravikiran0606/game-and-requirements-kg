@@ -38,7 +38,7 @@ class GameKG:
         self.my_kg.add((self.seller_global, RDFS.subClassOf, self.SCHEMA["seller"]))
         self.my_kg.add((self.seller_global, self.SCHEMA['name'], self.SCHEMA['Text']))
         self.my_kg.add((self.seller_global, self.MGNS['ratingValue'], XSD.decimal))
-        self.my_kg.add((self.enterprise_global, self.MGNS['bestRating'], XSD.decimal))
+        self.my_kg.add((self.seller_global, self.MGNS['bestRating'], XSD.decimal))
 
         ## Platform Class ##
         self.platform_global = URIRef(self.MGNS['Platform'])
@@ -50,6 +50,7 @@ class GameKG:
         self.my_kg.add((self.platform_global, self.MGNS['cpu'], self.SCHEMA['Text']))
         self.my_kg.add((self.platform_global, self.MGNS['storage'], self.SCHEMA['Text']))
         self.my_kg.add((self.platform_global, self.MGNS['supportedResolution'], self.SCHEMA['Text']))
+        self.my_kg.add((self.platform_global, self.SCHEMA['url'], self.SCHEMA['URL']))
 
         ## Processor Class ##
         self.processor_global = URIRef(self.MGNS["Processor"])
@@ -66,14 +67,18 @@ class GameKG:
         self.my_kg.add((self.graphics_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.graphics_global, self.SCHEMA['name'], self.SCHEMA['Text']))
         self.my_kg.add((self.graphics_global, self.MGNS['gpuChip'], self.SCHEMA['Text']))
+        self.my_kg.add((self.graphics_global, self.MGNS['bus'], self.SCHEMA['Text']))
         self.my_kg.add((self.graphics_global, self.SCHEMA['datePublished'], self.SCHEMA['date']))
-        self.my_kg.add((self.graphics_global, self.MGNS['gpuMemory'], self.SCHEMA['Text']))
-        self.my_kg.add((self.graphics_global, self.MGNS['gpuClockSpeed'], self.SCHEMA['Text']))
-        self.my_kg.add((self.graphics_global, self.MGNS['memoryClockSpeed'], self.SCHEMA['Text']))
+        self.my_kg.add((self.graphics_global, self.MGNS['gpuMemorySize_MB'], XSD.integer))
+        self.my_kg.add((self.graphics_global, self.MGNS['gpuMemoryType'], self.SCHEMA['Text']))
+        self.my_kg.add((self.graphics_global, self.MGNS['gpuMemoryBits'], XSD.integer))
+        self.my_kg.add((self.graphics_global, self.MGNS['gpuClockSpeed_MHz'], XSD.integer))
+        self.my_kg.add((self.graphics_global, self.MGNS['memoryClockSpeed_MHz'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['shader_1'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['shader_2'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['TMUs'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['ROPs'], XSD.integer))
+        self.my_kg.add((self.graphics_global, self.SCHEMA['url'], self.SCHEMA['URL']))
 
         ## Minimum Supporting Device Class ##
         self.msd_global = URIRef(self.MGNS["MSD"])
@@ -165,10 +170,6 @@ class GameKG:
         self.my_kg.add((self.has_theme_global, RDFS.domain, self.MGNS['Theme']))
         self.my_kg.add((self.has_theme_global, RDFS.range, self.MGNS['Genre']))
 
-
-
-
-
     def define_ontology(self):
         self.define_classes()
         self.define_properties()
@@ -216,58 +217,153 @@ class GameKG:
         cur_uri = URIRef(self.MGNS[list(platform_instance.keys())[0]])
         cur_val = list(platform_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.platform_global))
-        self.my_kg.add((cur_uri,self.MGNS['platformName'],Literal(cur_val['platform_name'],lang = "en")))
+        self.my_kg.add((cur_uri, self.MGNS['platformName'], Literal(cur_val['platform_name'],lang = "en")))
 
         try:
-            if len(cur_val['PLATFORM TYPE']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['platformType'],Literal(cur_val['PLATFORM TYPE'],lang = "en")))
-        except:
-            pass
-
-        try:
-            if len(cur_val['PLATFORM TYPE']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['platformType'],Literal(cur_val['PLATFORM TYPE'],lang = "en")))
+            if len(cur_val['PLATFORM TYPE:']) != 0:
+                self.my_kg.add((cur_uri, self.MGNS['platformType'], Literal(cur_val['PLATFORM TYPE:'],lang = "en")))
         except:
             pass
 
         try:
             if len(cur_val['Operating System']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['operatingSystem'],Literal(cur_val['Operating System'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['operatingSystem'], Literal(cur_val['Operating System'],lang = "en")))
         except:
             pass
 
         try:
             if len(cur_val['Memory']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['memory'],Literal(cur_val['Operating System'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['memory'], Literal(cur_val['Memory'],lang = "en")))
         except:
             pass
 
         try:
             if len(cur_val['CPU']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['CPU'],Literal(cur_val['CPU'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['CPU'], Literal(cur_val['CPU'],lang = "en")))
         except:
             pass
 
         try:
             if len(cur_val['Storage']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['storage'],Literal(cur_val['Storage'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['storage'], Literal(cur_val['Storage'],lang = "en")))
         except:
             pass
 
         try:
             if len(cur_val['Supported Resolutions']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['supportedResolution'],Literal(cur_val['Supported Resolutions'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['supportedResolution'], Literal(cur_val['Supported Resolutions'],lang = "en")))
         except:
             pass
 
 
-
-
     def addProcessorInstance(self, processor_instance):
-        pass
+        cur_uri = URIRef(self.MGNS[list(processor_instance.keys())[0]])
+        cur_val = list(processor_instance.values())[0]
+        self.my_kg.add((cur_uri, RDF.type, self.processor_global))
+        self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["name"], lang="en")))
+
+        try:
+            if len(cur_val['Cores']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['numCores'], Literal(cur_val['Cores'], lang="en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Clock']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['processorClockSpeed'], Literal(cur_val['Clock'], lang="en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['L3 Cache']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['l3Cache'], Literal(cur_val['L3 Cache'], lang="en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Socket']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['socket'], Literal(cur_val['Socket'], lang="en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['Process']) != 0:
+                self.my_kg.add((cur_uri,self.MGNS['process'], Literal(cur_val['Process'], lang="en")))
+        except:
+            pass
 
     def addGraphicsInstance(self, graphics_instance):
-        pass
+        cur_uri = URIRef(self.MGNS[list(graphics_instance.keys())[0]])
+        cur_val = list(graphics_instance.values())[0]
+        self.my_kg.add((cur_uri, RDF.type, self.graphics_global))
+        self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["product_name"], lang="en")))
+        self.my_kg.add((cur_uri, self.SCHEMA['url'], Literal(cur_val["product_url"], lang="en")))
+
+        try:
+            if len(cur_val['gpu_chip']) != 0:
+                self.my_kg.add((cur_uri, self.MGNS['gpuChip'], Literal(cur_val['gpu_chip'], lang="en")))
+        except:
+            pass
+
+        try:
+            if len(cur_val['bus_info']) != 0:
+                self.my_kg.add((cur_uri, self.MGNS['bus'], Literal(cur_val['bus_info'], lang="en")))
+        except:
+            pass
+
+        try:
+            if cur_val['released_year'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['datePublished'], Literal(cur_val['released_year'])))
+        except:
+            pass
+
+        try:
+            if cur_val['memory_val_mb'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['gpuMemorySize_MB'], Literal(cur_val['memory_val_mb'])))
+
+            if len(cur_val["memory_type"]) != 0:
+                self.my_kg.add((cur_uri, self.MGNS['gpuMemoryType'], Literal(cur_val["memory_type"], lang="en")))
+
+            if cur_val['memory_bits'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['gpuMemoryBits'], Literal(cur_val['memory_bits'])))
+        except:
+            pass
+
+        try:
+            if cur_val['gpu_clock_mhz'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['gpuClockSpeed_MHz'], Literal(cur_val['gpu_clock_mhz'])))
+        except:
+            pass
+
+        try:
+            if cur_val['memory_clock_mhz'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['memoryClockSpeed_MHz'], Literal(cur_val['memory_clock_mhz'])))
+        except:
+            pass
+
+        try:
+            if cur_val['shader_1'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['shader_1'], Literal(cur_val['shader_1'])))
+        except:
+            pass
+
+        try:
+            if cur_val['shader_2'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['shader_2'], Literal(cur_val['shader_2'])))
+        except:
+            pass
+
+        try:
+            if cur_val['tmus'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['TMUs'], Literal(cur_val['tmus'])))
+        except:
+            pass
+
+        try:
+            if cur_val['rops'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['ROPs'], Literal(cur_val['rops'])))
+        except:
+            pass
 
     def addMSDInstance(self, msd_instance):
         pass
@@ -295,5 +391,27 @@ if __name__ == "__main__":
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
             break
+
+    igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
+    with open(igdb_platforms_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addPlatformInstance(cur_dict)
+            break
+
+    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned.jl"
+    with open(techpowerup_gpu_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addGraphicsInstance(cur_dict)
+            break
+
+    techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu.jl"
+    with open(techpowerup_cpu_file, "r") as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addProcessorInstance(cur_dict)
+            break
+
 
     my_game_kg.storeKG("sample_game_kg.ttl")
