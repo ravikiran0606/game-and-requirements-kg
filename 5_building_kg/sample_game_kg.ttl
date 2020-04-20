@@ -171,17 +171,17 @@ mgns:supportedPlatform a rdf:Property ;
             mgns:diskSpace_MB 8192 ;
             mgns:graphics <mgns_techpowerup_gpu_2417> ;
             mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_1341> ],
-        [ a mgns:hasMSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics <mgns_techpowerup_gpu_2417> ;
-            mgns:memory_MB 2048 ;
             mgns:processor <mgns_techpowerup_cpu_4> ],
         [ a mgns:hasMSD ;
             mgns:diskSpace_MB 8192 ;
             mgns:graphics <mgns_techpowerup_gpu_7> ;
             mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_4> ] .
+            mgns:processor <mgns_techpowerup_cpu_4> ],
+        [ a mgns:hasMSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics <mgns_techpowerup_gpu_2417> ;
+            mgns:memory_MB 2048 ;
+            mgns:processor <mgns_techpowerup_cpu_1341> ] .
 
 mgns:hasMSD a rdf:Property ;
     rdfs:label "Minimum Supporting Device"@en ;

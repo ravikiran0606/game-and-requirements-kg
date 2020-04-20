@@ -365,8 +365,14 @@ class GameKG:
         except:
             pass
 
-    def addMSDInstance(self, msd_instance):
-        pass
+    def addMSDInstance(self, cur_cpu_uri, cur_gpu_uri, memory_val, disk_space_val):
+        cur_msd_node = BNode()
+        self.my_kg.add((cur_msd_node, RDF.type, self.msd_global))
+        self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(cur_cpu_uri)))
+        self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(cur_gpu_uri)))
+        self.my_kg.add((cur_msd_node, self.MGNS['memory_MB'], Literal(memory_val)))
+        self.my_kg.add((cur_msd_node, self.MGNS['diskSpace_MB'], Literal(disk_space_val)))
+        return cur_msd_node
 
     def addGameModeInstance(self, game_mode_instance):
         pass
@@ -410,13 +416,7 @@ class GameKG:
 
             for cur_cpu_uri in cpu_list:
                 for cur_gpu_uri in gpu_list:
-                    cur_msd_node = BNode()
-                    self.my_kg.add((cur_msd_node, RDF.type, self.msd_global))
-                    self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(cur_cpu_uri)))
-                    self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(cur_gpu_uri)))
-                    self.my_kg.add((cur_msd_node, self.MGNS['memory_MB'], Literal(memory_val)))
-                    self.my_kg.add((cur_msd_node, self.MGNS['diskSpace_MB'], Literal(disk_space_val)))
-
+                    cur_msd_node = self.addMSDInstance(cur_cpu_uri, cur_gpu_uri, memory_val, disk_space_val)
                     self.my_kg.add((cur_uri, self.MGNS["hasMSD"], cur_msd_node))
         except:
             pass
