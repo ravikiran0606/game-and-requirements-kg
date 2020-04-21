@@ -43,9 +43,22 @@ def compare_cpu(g2a_min_cpu_1,techpowerup_cpu,g2a_min_cpu_2=None,max_score_1=-1,
                     similar_id_2 = cpu_key
                     most_similar_cpu_2 = cpu_value['name']
 
-            #print(max_score_1,max_score_2)
-            return {'most_sim_cpu_1':{'name':most_similar_cpu_1,'sim_id':similar_id_1,'sim_score':max_score_1},
-                    'most_sim_cpu_2':{'name':most_similar_cpu_2,'sim_id':similar_id_2,'sim_score':max_score_2}}
+            if max_score_1 > 0.5 and max_score_2 > 0.5:
+                return {'most_sim_cpu_1':{'name':most_similar_cpu_1,'sim_id':similar_id_1,'sim_score':max_score_1},
+                        'most_sim_cpu_2':{'name':most_similar_cpu_2,'sim_id':similar_id_2,'sim_score':max_score_2}}
+
+            elif max_score_1 > 0.5 and max_score_2 < 0.5:
+                return {'most_sim_cpu_1': {'name': most_similar_cpu_1, 'sim_id': similar_id_1, 'sim_score': max_score_1},
+                        'most_sim_cpu_2': {'name': '', 'sim_id':'','sim_score':max_score_2}}
+
+            elif max_score_1 < 0.5 and max_score_2 > 0.5:
+                return {'most_sim_cpu_1': {'name': '', 'sim_id': '', 'sim_score': max_score_1},
+                        'most_sim_cpu_2': {'name': most_similar_cpu_2, 'sim_id':similar_id_2,'sim_score':max_score_2}}
+
+            else:
+                return {'most_sim_cpu_1': {'name': '', 'sim_id': '', 'sim_score': max_score_1},
+                        'most_sim_cpu_2': {'name': '', 'sim_id': '','sim_score':max_score_2}}
+
 
         if g2a_min_cpu_1 != None and g2a_min_cpu_2 == None:
             for cpu in techpowerup_cpu_reader:
@@ -63,7 +76,8 @@ def compare_cpu(g2a_min_cpu_1,techpowerup_cpu,g2a_min_cpu_2=None,max_score_1=-1,
                     max_score_1 = score_1
                     similar_id_1 = cpu_key
                     most_similar_cpu_1 = cpu_value['name']
-            return {'most_sim_cpu':{'name':most_similar_cpu_1,'sim_id':similar_id_1,'sim_score':max_score_1}}
+            if max_score_1 > 0.5:
+                return {'most_sim_cpu':{'name':most_similar_cpu_1,'sim_id':similar_id_1,'sim_score':max_score_1}}
 
 
 if __name__=='__main__':

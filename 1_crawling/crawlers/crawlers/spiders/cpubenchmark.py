@@ -38,7 +38,10 @@ class CPUBenchmark(scrapy.Spider):
             thread_mark = cpu_value.find_next('td')
             cur_dict['thread_mark'] = thread_mark.get_text()
 
-            tdp_w = thread_mark.find_next('td')
+            thread_value = thread_mark.find_next('td')
+            cur_dict['thread_value'] = thread_value.get_text()
+
+            tdp_w = thread_value.find_next('td')
             cur_dict['tdp_w'] = tdp_w.get_text()
 
             power_perf = tdp_w.find_next('td')
