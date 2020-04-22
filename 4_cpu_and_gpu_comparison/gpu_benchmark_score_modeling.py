@@ -91,9 +91,6 @@ def testClassification(model, X_test, y_test):
     print("Recall = ", recall)
     print("F1 score = ", f1_score, "\n")
 
-def predict():
-    pass
-
 def normalizeCols(col_name, df, scaler):
     out_data = scaler.fit_transform(np.array(df[col_name]).reshape(-1, 1))
     out_data = np.squeeze(out_data)
@@ -111,6 +108,7 @@ if __name__ == "__main__":
 
     df_total = pd.concat([df, memory_type_feat_cols], axis=1)
 
+    # Normalize the features:
     cols_to_normalize = ["released_year", "memory_val_mb", "memory_bits", "gpu_clock_mhz",
                          "memory_clock_mhz", "shader_1", "shader_2", "tmus", "rops"]
     scaler = MinMaxScaler()
@@ -118,18 +116,16 @@ if __name__ == "__main__":
         df_total[col] = normalizeCols(col, df_total, scaler)
 
     df_total.fillna(0, inplace=True)
+    df_total.replace(-1, 0, inplace=True)
 
     # Split the data set into train and test
     X_data = df_total.drop(columns=["g3d_mark"])
     y_data = df_total["g3d_mark"]
-
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=0.2, random_state=1)
 
     # Train the model
     model = train(X_train, y_train)
+
+    # Test the model
     testRegression(model, X_test, y_test)
     testClassification(model, X_test, y_test)
-
-    # Predict for the whole gpu data:
-    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned.jl"
-    predict(techpowerup_gpu_file)
