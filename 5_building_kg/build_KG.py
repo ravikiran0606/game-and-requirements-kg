@@ -232,7 +232,8 @@ class GameKG:
         return cur_uri
 
     def addEnterpriseInstance(self, enterprise_instance):
-        cur_uri = URIRef(self.MGNS[list(enterprise_instance.keys())[0]])
+        cur_uri = self.__generateShortURI(list(enterprise_instance.keys())[0])
+        cur_uri = URIRef(self.MGNS[cur_uri])
         cur_val = list(enterprise_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.enterprise_global))
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["company_name"], lang="en")))
@@ -277,7 +278,8 @@ class GameKG:
             pass
 
     def addPlatformInstance(self, platform_instance):
-        cur_uri = URIRef(self.MGNS[list(platform_instance.keys())[0]])
+        cur_uri = self.__generateShortURI(list(platform_instance.keys())[0])
+        cur_uri = URIRef(self.MGNS[cur_uri])
         cur_val = list(platform_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.platform_global))
         self.my_kg.add((cur_uri, self.MGNS['platformName'], Literal(cur_val['platform_name'], lang="en")))
@@ -320,7 +322,8 @@ class GameKG:
             pass
 
     def addProcessorInstance(self, processor_instance):
-        cur_uri = URIRef(self.MGNS[list(processor_instance.keys())[0]])
+        cur_uri = self.__generateShortURI(list(processor_instance.keys())[0])
+        cur_uri = URIRef(self.MGNS[cur_uri])
         cur_val = list(processor_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.processor_global))
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["name"], lang="en")))
@@ -370,7 +373,8 @@ class GameKG:
             pass
 
     def addGraphicsInstance(self, graphics_instance):
-        cur_uri = URIRef(self.MGNS[list(graphics_instance.keys())[0]])
+        cur_uri = self.__generateShortURI(list(graphics_instance.keys())[0])
+        cur_uri = URIRef(self.MGNS[cur_uri])
         cur_val = list(graphics_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.graphics_global))
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["product_name"], lang="en")))
@@ -445,6 +449,8 @@ class GameKG:
 
     def addMSDInstance(self, cur_cpu_uri, cur_gpu_uri, memory_val, disk_space_val):
         cur_msd_node = BNode()
+        cur_cpu_uri = self.__generateShortURI(cur_cpu_uri)
+        cur_gpu_uri = self.__generateShortURI(cur_gpu_uri)
         self.my_kg.add((cur_msd_node, RDF.type, self.msd_global))
         self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(self.MGNS[cur_cpu_uri])))
         self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(self.MGNS[cur_gpu_uri])))
@@ -486,7 +492,8 @@ class GameKG:
 
     def addGameInstance(self, igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform, er_publisher,
                         er_developer):
-        cur_uri = URIRef(self.MGNS[igdb_game_id])
+        cur_uri = self.__generateShortURI(igdb_game_id)
+        cur_uri = URIRef(self.MGNS[cur_uri])
         self.my_kg.add((cur_uri, RDF.type, self.game_global))
         # add game name
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(igdb_game['game_name'], lang='en')))
@@ -511,6 +518,7 @@ class GameKG:
         try:
             if len(er_platform) != 0:
                 for platform in er_platform:
+                    platform = self.__generateShortURI(platform)
                     self.my_kg.add((cur_uri, self.MGNS['supportedPlatform'], URIRef(self.MGNS[platform])))
         except:
             pass
@@ -518,6 +526,7 @@ class GameKG:
         try:
             # Link Developer
             for comp in er_developer:
+                comp = self.__generateShortURI(comp)
                 self.my_kg.add((cur_uri, self.MGNS['developedBy'], URIRef(self.MGNS[comp])))
 
         except:
@@ -526,6 +535,7 @@ class GameKG:
         try:
             # Link publisher
             for comp in er_publisher:
+                comp = self.__generateShortURI(comp)
                 self.my_kg.add((cur_uri, self.MGNS['publisherBy'], URIRef(self.MGNS[comp])))
         except:
             pass

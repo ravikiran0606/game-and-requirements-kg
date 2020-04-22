@@ -50,6 +50,7 @@ mgns:Graphics a rdfs:Class ;
     mgns:ROPs xsd:integer ;
     mgns:TMUs xsd:integer ;
     mgns:bus schema:Text ;
+    mgns:g3dMark xsd:integer ;
     mgns:gpuChip schema:Text ;
     mgns:gpuClockSpeed_MHz xsd:integer ;
     mgns:gpuMemoryBits xsd:integer ;
@@ -79,10 +80,12 @@ mgns:Platform a rdfs:Class ;
     schema:url schema:URL .
 
 mgns:Processor a rdfs:Class ;
-    mgns:l3Cache schema:Text ;
-    mgns:numCores schema:Text ;
-    mgns:process schema:Text ;
-    mgns:processorClockSpeed schema:Text ;
+    mgns:higherClockSpeedghz xsd:decimal ;
+    mgns:l3CacheMB xsd:integer ;
+    mgns:lowerClockSpeedghz xsd:decimal ;
+    mgns:numCore1 xsd:integer ;
+    mgns:numCore2 xsd:integer ;
+    mgns:process xsd:integer ;
     mgns:socket schema:Text ;
     schema:name schema:Text .
 
@@ -95,27 +98,13 @@ mgns:Seller a rdfs:Class ;
 mgns:Theme a rdfs:Class ;
     rdfs:label "Theme" .
 
-mgns:developedBy a rdf:Property ;
-    rdfs:label "Developed By"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:Enterprise .
+mgns:fantasy a mgns:Theme ;
+    rdfs:label "Fantasy"@en .
 
-mgns:hasGameMode a rdf:Property ;
-    rdfs:label "Has Game"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:GameMode .
+mgns:historical a mgns:Theme ;
+    rdfs:label "Historical"@en .
 
-mgns:hasGenre a rdf:Property ;
-    rdfs:label "Has Genre"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:Genre .
-
-mgns:hasTheme a rdf:Property ;
-    rdfs:label "Has Theme"@en ;
-    rdfs:domain mgns:Theme ;
-    rdfs:range mgns:Genre .
-
-mgns:mgns_igdb_companies_0 a mgns:Enterprise ;
+mgns:mic_0 a mgns:Enterprise ;
     mgns:bestRating 1e+02 ;
     mgns:ratingCount 2 ;
     mgns:ratingValue 0e+00 ;
@@ -123,19 +112,69 @@ mgns:mgns_igdb_companies_0 a mgns:Enterprise ;
     schema:name "100Hr Games"@en ;
     schema:url "https://www.igdb.com/companies/100hr-games"@en .
 
-mgns:mgns_igdb_platforms_0 a mgns:Platform ;
+mgns:mig_10 a mgns:Game ;
+    mgns:bestRating 100.0 ;
+    mgns:developedBy mgns:mic_3315 ;
+    mgns:discount "71% OFF" ;
+    mgns:hasGameMode mgns:co_operative,
+        mgns:multiplayer,
+        mgns:single_player ;
+    mgns:hasGenre mgns:adventure,
+        mgns:shooter ;
+    mgns:hasMSD [ a mgns:MSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics mgns:mtg_7 ;
+            mgns:memory_MB 2048 ;
+            mgns:processor mgns:mtc_4 ],
+        [ a mgns:MSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics mgns:mtg_2417 ;
+            mgns:memory_MB 2048 ;
+            mgns:processor mgns:mtc_1341 ],
+        [ a mgns:MSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics mgns:mtg_7 ;
+            mgns:memory_MB 2048 ;
+            mgns:processor mgns:mtc_1341 ],
+        [ a mgns:MSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics mgns:mtg_2417 ;
+            mgns:memory_MB 2048 ;
+            mgns:processor mgns:mtc_4 ] ;
+    mgns:hasTheme mgns:action,
+        mgns:horror,
+        mgns:survival ;
+    mgns:old_price "22.33 USD" ;
+    mgns:price "6.32 USD" ;
+    mgns:publisherBy mgns:mic_18896,
+        mgns:mic_3309,
+        mgns:mic_3315 ;
+    mgns:ratingCount 88 ;
+    mgns:ratingValue 72.0 ;
+    mgns:sellerFeedback "Positive feedback" ;
+    mgns:sellerURL "https://www.g2a.com/en-us/batman-arkham-asylum-goty-steam-key-global-i10000001347004" ;
+    mgns:soldBy mgns:gbgames ;
+    mgns:supportedPlatform mgns:mip_125,
+        mgns:mip_133,
+        mgns:mip_138,
+        mgns:mip_140,
+        mgns:mip_144,
+        mgns:mip_145,
+        mgns:mip_146,
+        mgns:mip_20 ;
+    schema:description "<p>Resident Evil: Revelations 2, known as Biohazard Revelations 2 (Japanese: バイオハザード リベレーションズ 2 Hepburn: Baiohazādo Riberēshonzu Tsū?) in Japan, is an episodic survival horror video game and the tenth installment of the Resident Evil franchise, developed and published by Capcom. The game is a follow up to Resident Evil: Revelations. An episodic game which comprises of 4 episodes, each of which feature two separate stories. The first is the tale of Claire Redfield and Moira Burton, daughter of Barry Burton - who work for biohazard protection group Terra Save. They are kidnapped and must survive on an island full of \"Afflicted\". The second story features Barry Burton, in search of his daughter, who upon reaching the island meets a strange girl named Natalia. He must retrace his daughters steps and find her before it is too late.</p>"@en ;
+    schema:name "Resident Evil: Revelations 2"@en ;
+    schema:url "https://www.igdb.com/games/resident-evil-revelations-2" .
+
+mgns:mip_0 a mgns:Platform ;
     mgns:platformName "PlayStation 5"@en ;
     mgns:platformType "Console"@en .
 
-mgns:mgns_techpowerup_cpu_0 a mgns:Processor ;
-    mgns:l3Cache "128MB"@en ;
-    mgns:numCores "64  / 128"@en ;
-    mgns:process "7 nm"@en ;
-    mgns:processorClockSpeed "2.9 to 4.3 GHz"@en ;
+mgns:mtc_0 a mgns:Processor ;
     mgns:socket "Socket TR4"@en ;
     schema:name "Ryzen Threadripper 3990X"@en .
 
-mgns:mgns_techpowerup_gpu_0 a mgns:Graphics ;
+mgns:mtg_0 a mgns:Graphics ;
     mgns:ROPs 1 ;
     mgns:TMUs 0 ;
     mgns:bus "PCI"@en ;
@@ -148,43 +187,24 @@ mgns:mgns_techpowerup_gpu_0 a mgns:Graphics ;
     mgns:memoryClockSpeed_MHz 10 ;
     mgns:shader_1 1 ;
     mgns:shader_2 0 ;
+    schema:g3dMark 119 ;
     schema:name "Graphics Solution"@en ;
     schema:url "https://www.techpowerup.com/gpu-specs/graphics-solution.c3176"@en .
 
-mgns:publishedBy a rdf:Property ;
-    rdfs:label "Published By"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:Enterprise .
+mgns:premiumseller a mgns:Seller ;
+    mgns:bestRating 100 ;
+    mgns:ratingValue 95 ;
+    schema:name "Premiumseller"@en .
 
-mgns:supportedPlatform a rdf:Property ;
-    rdfs:label "Supported Platform"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:Platform .
+mgns:role_playing_rpg a mgns:Genre ;
+    rdfs:label "Role-playing (RPG)"@en .
 
-<mgns_igdb_games_10> a mgns:Game ;
-    mgns:hasMSD [ a mgns:hasMSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics <mgns_techpowerup_gpu_7> ;
-            mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_1341> ],
-        [ a mgns:hasMSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics <mgns_techpowerup_gpu_2417> ;
-            mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_4> ],
-        [ a mgns:hasMSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics <mgns_techpowerup_gpu_7> ;
-            mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_4> ],
-        [ a mgns:hasMSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics <mgns_techpowerup_gpu_2417> ;
-            mgns:memory_MB 2048 ;
-            mgns:processor <mgns_techpowerup_cpu_1341> ] .
+mgns:strategy a mgns:Genre ;
+    rdfs:label "Strategy"@en .
 
-mgns:hasMSD a rdf:Property ;
-    rdfs:label "Minimum Supporting Device"@en ;
-    rdfs:domain mgns:Game ;
-    rdfs:range mgns:MSD .
+mgns:adventure a mgns:Genre ;
+    rdfs:label "Adventure"@en .
+
+mgns:single_player a mgns:GameMode ;
+    rdfs:label "Single player"@en .
 
