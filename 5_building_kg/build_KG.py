@@ -4,6 +4,7 @@ import json
 import datetime
 import jsonlines
 
+
 class GameKG:
     def __init__(self):
         self.my_kg = Graph()
@@ -56,11 +57,13 @@ class GameKG:
         self.processor_global = URIRef(self.MGNS["Processor"])
         self.my_kg.add((self.processor_global, RDF.type, RDFS.Class))
         self.my_kg.add((self.processor_global, self.SCHEMA['name'], self.SCHEMA['Text']))
-        self.my_kg.add((self.processor_global, self.MGNS['numCores'], self.SCHEMA['Text']))
-        self.my_kg.add((self.processor_global, self.MGNS['processorClockSpeed'], self.SCHEMA['Text']))
-        self.my_kg.add((self.processor_global, self.MGNS['l3Cache'], self.SCHEMA['Text']))
+        self.my_kg.add((self.processor_global, self.MGNS['numCore1'], XSD.integer))
+        self.my_kg.add((self.processor_global, self.MGNS['numCore2'], XSD.integer))
+        self.my_kg.add((self.processor_global, self.MGNS['lowerClockSpeedghz'], XSD.decimal))
+        self.my_kg.add((self.processor_global, self.MGNS['higherClockSpeedghz'], XSD.decimal))
+        self.my_kg.add((self.processor_global, self.MGNS['l3CacheMB'], XSD.integer))
         self.my_kg.add((self.processor_global, self.MGNS['socket'], self.SCHEMA['Text']))
-        self.my_kg.add((self.processor_global, self.MGNS['process'], self.SCHEMA['Text']))
+        self.my_kg.add((self.processor_global, self.MGNS['process'], XSD.integer))
 
         ## Graphics Class ##
         self.graphics_global = URIRef(self.MGNS["Graphics"])
@@ -126,7 +129,7 @@ class GameKG:
         self.my_kg.add((self.game_global, self.MGNS["sellerFeedback"], self.SCHEMA["Text"]))
         self.my_kg.add((self.game_global, self.MGNS["sellerUrl"], self.SCHEMA["Text"]))
 
-    def define_properties(self):
+    '''def define_properties(self):
         ## Properties ##
         self.supported_platform_global = URIRef(self.MGNS["supportedPlatform"])
         self.my_kg.add((self.supported_platform_global, RDF.type, RDF.Property))
@@ -170,9 +173,21 @@ class GameKG:
         self.my_kg.add((self.has_theme_global, RDFS.domain, self.MGNS['Theme']))
         self.my_kg.add((self.has_theme_global, RDFS.range, self.MGNS['Genre']))
 
+        self.has_theme_global = URIRef(self.MGNS["hasTheme"])
+        self.my_kg.add((self.has_theme_global, RDF.type, RDF.Property))
+        self.my_kg.add((self.has_theme_global, RDFS.label, Literal("Has Theme", lang="en")))
+        self.my_kg.add((self.has_theme_global, RDFS.domain, self.MGNS['Theme']))
+        self.my_kg.add((self.has_theme_global, RDFS.range, self.MGNS['Genre']))
+
+        self.rating_value_global = URIRef(self.MGNS["ratingValue"])
+        self.my_kg.add((self.has_theme_global, RDF.type, RDF.Property))
+        self.my_kg.add((self.has_theme_global, RDFS.label, Literal("Rating Value", lang="en")))
+        self.my_kg.add((self.has_theme_global, RDFS.domain, self.MGNS['Enterprise']))
+        self.my_kg.add((self.has_theme_global, RDFS.range, XSD.integer))'''
+
     def define_ontology(self):
         self.define_classes()
-        self.define_properties()
+        #self.define_properties()
 
     def storeKG(self, kg_file_name):
         self.my_kg.serialize(kg_file_name, format="turtle")
@@ -210,51 +225,59 @@ class GameKG:
         if len(cur_val["founding_country"]) != 0:
             self.my_kg.add((cur_uri, self.SCHEMA['foundingLocation'], Literal(cur_val["founding_country"], lang="en")))
 
-    def addSellerInstance(self):
-        pass
+    def addSellerInstance(self, seller_instance):
+        cur_val = list(seller_instance.values())[0]
+        try:
+            cur_uri = URIRef(self.MGNS['_'.join(cur_val['seller_name'].split().strip())])
+            self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val['seller_name'], lang='en')))
+            self.my_kg.add(
+                (cur_uri, self.MGNS['ratingValue'], Literal(cur_val['seller_rating'][:-1], datatype=XSD.integer)))
+            self.my_kg.add((cur_uri, self.MGNS['bestRating'], Literal(100, datatype=XSD.integer)))
+        except:
+            pass
 
     def addPlatformInstance(self, platform_instance):
         cur_uri = URIRef(self.MGNS[list(platform_instance.keys())[0]])
         cur_val = list(platform_instance.values())[0]
         self.my_kg.add((cur_uri, RDF.type, self.platform_global))
-        self.my_kg.add((cur_uri, self.MGNS['platformName'], Literal(cur_val['platform_name'],lang = "en")))
+        self.my_kg.add((cur_uri, self.MGNS['platformName'], Literal(cur_val['platform_name'], lang="en")))
 
         try:
             if len(cur_val['PLATFORM TYPE:']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['platformType'], Literal(cur_val['PLATFORM TYPE:'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['platformType'], Literal(cur_val['PLATFORM TYPE:'], lang="en")))
         except:
             pass
 
         try:
             if len(cur_val['Operating System']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['operatingSystem'], Literal(cur_val['Operating System'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['operatingSystem'], Literal(cur_val['Operating System'], lang="en")))
         except:
             pass
 
         try:
             if len(cur_val['Memory']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['memory'], Literal(cur_val['Memory'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['memory'], Literal(cur_val['Memory'], lang="en")))
         except:
             pass
 
         try:
             if len(cur_val['CPU']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['CPU'], Literal(cur_val['CPU'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['CPU'], Literal(cur_val['CPU'], lang="en")))
         except:
             pass
 
         try:
             if len(cur_val['Storage']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['storage'], Literal(cur_val['Storage'],lang = "en")))
+                self.my_kg.add((cur_uri, self.MGNS['storage'], Literal(cur_val['Storage'], lang="en")))
         except:
             pass
 
         try:
             if len(cur_val['Supported Resolutions']) != 0:
-                self.my_kg.add((cur_uri, self.MGNS['supportedResolution'], Literal(cur_val['Supported Resolutions'],lang = "en")))
+                self.my_kg.add(
+                    (cur_uri, self.MGNS['supportedResolution'], Literal(cur_val['Supported Resolutions'], lang="en")))
         except:
             pass
-
 
     def addProcessorInstance(self, processor_instance):
         cur_uri = URIRef(self.MGNS[list(processor_instance.keys())[0]])
@@ -263,32 +286,46 @@ class GameKG:
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["name"], lang="en")))
 
         try:
-            if len(cur_val['Cores']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['numCores'], Literal(cur_val['Cores'], lang="en")))
+            if cur_val['core_1'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['numCore1'], Literal(cur_val['core_1'], datatype=XSD.integer)))
         except:
             pass
 
         try:
-            if len(cur_val['Clock']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['processorClockSpeed'], Literal(cur_val['Clock'], lang="en")))
+            if cur_val['core_2'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['numCore2'], Literal(cur_val['core_2'], datatype=XSD.integer)))
         except:
             pass
 
         try:
-            if len(cur_val['L3 Cache']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['l3Cache'], Literal(cur_val['L3 Cache'], lang="en")))
+            if cur_val['lower_clock_speed_ghz'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['lowerClockSpeedghz'],
+                                Literal(cur_val['lower_clock_speed_ghz'], datatype=XSD.decimal)))
+        except:
+            pass
+
+        try:
+            if cur_val['higher_clock_speed_ghz'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['higherClockSpeedghz'],
+                                Literal(cur_val['higher_clock_speed_ghz'], datatype=XSD.decimal)))
+        except:
+            pass
+
+        try:
+            if cur_val(['l3_cache']) != -1:
+                self.my_kg.add((cur_uri, self.MGNS['l3CacheMB'], Literal(cur_val['l3_cache'], datatype=XSD.integer)))
         except:
             pass
 
         try:
             if len(cur_val['Socket']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['socket'], Literal(cur_val['Socket'], lang="en")))
+                self.my_kg.add((cur_uri, self.MGNS['socket'], Literal(cur_val['Socket'], lang="en")))
         except:
             pass
 
         try:
-            if len(cur_val['Process']) != 0:
-                self.my_kg.add((cur_uri,self.MGNS['process'], Literal(cur_val['Process'], lang="en")))
+            if cur_val['process'] != -1:
+                self.my_kg.add((cur_uri, self.MGNS['process'], Literal(cur_val['process'], datatype=XSD.integer)))
         except:
             pass
 
@@ -368,20 +405,43 @@ class GameKG:
     def addMSDInstance(self, cur_cpu_uri, cur_gpu_uri, memory_val, disk_space_val):
         cur_msd_node = BNode()
         self.my_kg.add((cur_msd_node, RDF.type, self.msd_global))
-        self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(cur_cpu_uri)))
-        self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(cur_gpu_uri)))
+        self.my_kg.add((cur_msd_node, self.MGNS['processor'], URIRef(self.MGNS[cur_cpu_uri])))
+        self.my_kg.add((cur_msd_node, self.MGNS['graphics'], URIRef(self.MGNS[cur_gpu_uri])))
         self.my_kg.add((cur_msd_node, self.MGNS['memory_MB'], Literal(memory_val)))
         self.my_kg.add((cur_msd_node, self.MGNS['diskSpace_MB'], Literal(disk_space_val)))
         return cur_msd_node
 
     def addGameModeInstance(self, game_mode_instance):
-        pass
+        # cur_uri = URIRef(self.MGNS[list(enterprise_instance.keys())[0]])
+        # should we create a single uri
+        cur_val = list(game_mode_instance.values())[0]
+        try:
+            for mode in cur_val['game_modes']:
+                cur_uri = URIRef(self.MGNS['_'.join(mode.lower().split())])
+                self.my_kg.add((cur_uri, RDF.type, self.game_mode_global))
+                self.my_kg.add((cur_uri, RDFS.label, Literal(mode, lang="en")))
+        except:
+            pass
 
     def addGenreInstance(self, genre_instance):
-        pass
+        cur_val = list(genre_instance.values())[0]
+        try:
+            for genre in cur_val['genre']:
+                cur_uri = URIRef(self.MGNS['_'.join(genre.lower().split())])
+                self.my_kg.add((cur_uri, RDF.type, self.genre_global))
+                self.my_kg.add((cur_uri, RDFS.label, Literal(genre, lang='en')))
+        except:
+            pass
 
     def addThemeInstance(self, theme_instance):
-        pass
+        cur_val = list(theme_instance.values())[0]
+        try:
+            for theme in cur_val['themes']:
+                cur_uri = URIRef(self.MGNS['_'.join(theme.lower().split())])
+                self.my_kg.add((cur_uri, RDF.type, self.theme_global))
+                self.my_kg.add((cur_uri, RDFS.label, Literal(theme, lang='en')))
+        except:
+            pass
 
     def __convertSizeToMB(self, cur_size):
         cur_size = cur_size.lower()
@@ -404,9 +464,128 @@ class GameKG:
 
         return cur_val
 
-    def addGameInstance(self, igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list):
-        cur_uri = URIRef(igdb_game_id)
+    def addGameInstance(self, igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform, er_publisher,
+                        er_developer):
+        cur_uri = URIRef(self.MGNS[igdb_game_id])
         self.my_kg.add((cur_uri, RDF.type, self.game_global))
+        # add game name
+        self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(igdb_game['game_name'], lang='en')))
+        try:
+            # add game summary
+            if len(igdb_game['game_summary']) != 0:
+                self.my_kg.add((cur_uri, self.SCHEMA['description'], Literal(igdb_game['game_summary'], lang='en')))
+        except:
+            pass
+
+        try:
+            # add game url
+            self.my_kg.add((cur_uri, self.SCHEMA['url'], Literal(igdb_game['url'])))
+        except:
+            pass
+
+        '''try:
+            # add release date
+        except:
+            pass'''
+
+        try:
+            if len(er_platform) != 0:
+                for platform in er_platform:
+                    self.my_kg.add((cur_uri, self.MGNS['supportedPlatform'], URIRef(self.MGNS[platform])))
+        except:
+            pass
+
+        try:
+            # Link Developer
+            for comp in er_developer:
+                self.my_kg.add((cur_uri, self.MGNS['developedBy'], URIRef(self.MGNS[comp])))
+
+        except:
+            pass
+
+        try:
+            # Link publisher
+            for comp in er_publisher:
+                self.my_kg.add((cur_uri, self.MGNS['publisherBy'], URIRef(self.MGNS[comp])))
+        except:
+            pass
+
+        try:
+            # game mode
+            for game_mode in igdb_game['game_modes']:
+                self.my_kg.add(
+                    (cur_uri, self.MGNS['hasGameMode'], URIRef(self.MGNS['_'.join(game_mode.lower().split())])))
+        except:
+            pass
+
+        try:
+            # game genre
+            for genre in igdb_game['genre']:
+                self.my_kg.add((cur_uri, self.MGNS['hasGenre'], URIRef(self.MGNS['_'.join(genre.lower().split())])))
+        except:
+            pass
+
+        try:
+            # link game theme
+            for theme in igdb_game['themes']:
+                self.my_kg.add((cur_uri, self.MGNS['hasTheme'], URIRef(self.MGNS['_'.join(theme.lower().split())])))
+        except:
+            pass
+
+        try:
+            # Rating Value
+            self.my_kg.add((cur_uri, self.MGNS['ratingValue'], Literal(igdb_game['game_rating'], datatype=XSD.decimal)))
+        except:
+            pass
+
+        try:
+            # Rating Count
+            self.my_kg.add(
+                (cur_uri, self.MGNS['ratingCount'], Literal(igdb_game['num_rating_counts'], datatype=XSD.integer)))
+        except:
+            pass
+
+        try:
+            # Best Rating
+            self.my_kg.add((cur_uri, self.MGNS['bestRating'], Literal(100, datatype=XSD.decimal)))
+        except:
+            pass
+
+        try:
+            # Seller
+            self.my_kg.add(
+                (cur_uri, self.MGNS['soldBy'], URIRef(self.MGNS['_'.join(g2a_game['seller_name'].lower().split())])))
+        except:
+            pass
+        try:
+            # Link game best price
+            self.my_kg.add((cur_uri, self.MGNS['price'], Literal(g2a_game['seller_price'])))
+        except:
+            pass
+
+        try:
+            # Link game old price
+            self.my_kg.add((cur_uri, self.MGNS['old_price'], Literal(g2a_game['seller_old_price'])))
+        except:
+            pass
+
+        try:
+            # Link discount provided
+            self.my_kg.add((cur_uri, self.MGNS['discount'], Literal(g2a_game['seller_discount'])))
+        except:
+            pass
+
+        try:
+            # Seller Feedback message
+            self.my_kg.add((cur_uri, self.MGNS['sellerFeedback'], Literal(g2a_game['seller_feedback_msg'])))
+        except:
+            pass
+
+        try:
+            # Seller URL
+            self.my_kg.add((cur_uri, self.MGNS['sellerURL'], Literal(g2a_game['url'])))
+        except:
+            pass
 
         try:
             disk_space = g2a_game["min_requirements"]["Disk space"]
@@ -421,6 +600,7 @@ class GameKG:
         except:
             pass
 
+
 def constructDictfromJL(json_lines_file):
     result_dict = {}
     with open(json_lines_file, "r") as f:
@@ -431,6 +611,7 @@ def constructDictfromJL(json_lines_file):
             result_dict[key] = val
 
     return result_dict
+
 
 def createMAPforGPU(json_lines_file):
     score_threshold = 0.75
@@ -454,6 +635,7 @@ def createMAPforGPU(json_lines_file):
             result_dict[key] = val
     return result_dict
 
+
 def createMAPforCPU(json_lines_file):
     score_threshold = 1.2
     result_dict = {}
@@ -474,53 +656,95 @@ def createMAPforCPU(json_lines_file):
                     val.append(cpu2["max_match_id"])
 
             result_dict[key] = val
+
+    # print(result_dict)
     return result_dict
+
+
+def createMAPforplatform(json_lines_file):
+    result_dict = {}
+    with jsonlines.open(json_lines_file) as reader:
+        for obj in reader:
+            key, val = list(obj.items())[0][0], list(obj.items())[0][1]
+            result_dict[key] = val
+    return result_dict
+
+
+def createMAPforpublisher_developer(json_lines_file):
+    publisher_dict = {}
+    developer_dict = {}
+    with jsonlines.open(json_lines_file) as reader:
+        for obj in reader:
+            key, val = list(obj.items())[0][0], list(obj.items())[0][1]
+            publisher_dict[key] = val['publisher']
+            developer_dict[key] = val['developer']
+    return publisher_dict, developer_dict
+
 
 if __name__ == "__main__":
     my_game_kg = GameKG()
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
 
-    igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
+    igdb_companies_file = "../data_with_ids/igdb_companies.jl"
     with open(igdb_companies_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
             break
 
-    igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
+    igdb_platforms_file = "../data_with_ids/igdb_platforms.jl"
     with open(igdb_platforms_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addPlatformInstance(cur_dict)
             break
 
-    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned.jl"
+    techpowerup_gpu_file = "../data_with_ids/techpowerup_gpu_specs_cleaned.jl"
     with open(techpowerup_gpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu.jl"
+    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addProcessorInstance(cur_dict)
             break
 
-
     # Adding Games:
-    g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
-    igdb_games_file = "../../data_with_ids/igdb_games.jl"
-    er_g2a_igdb_file = "../../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4_short.jl"
-    er_g2a_gpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
-    er_g2a_cpu_file = "../../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
+    g2a_games_file = "../data_with_ids/g2a_games_with_requirements.jl"
+    igdb_games_file = "../data_with_ids/igdb_games.jl"
+    er_g2a_igdb_file = "../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4.jl"
+    er_g2a_gpu_file = "../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
+    er_g2a_cpu_file = "../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
+    platform_file = '../data_er/ER_platform.jl'
+    companies_file = '../data_er/ER_companies.jl'
+
+    # running "game mode class", "genre class", "theme class"
+    with open(igdb_games_file, 'r') as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addGameModeInstance(cur_dict)
+            my_game_kg.addGenreInstance(cur_dict)
+            my_game_kg.addThemeInstance(cur_dict)
+            break
+
+    # running "seller class"
+    with open(g2a_games_file, 'r') as f:
+        for cur_line in f:
+            cur_dict = json.loads(cur_line)
+            my_game_kg.addSellerInstance(cur_dict)
+            break
 
     g2a_games = constructDictfromJL(g2a_games_file)
     igdb_games = constructDictfromJL(igdb_games_file)
     er_g2a_gpu = createMAPforGPU(er_g2a_gpu_file)
     er_g2a_cpu = createMAPforCPU(er_g2a_cpu_file)
+    er_platform = createMAPforplatform(platform_file)
+    er_publisher, er_developer = createMAPforpublisher_developer(companies_file)
 
     with open(er_g2a_igdb_file, "r") as f:
         for cur_line in f:
@@ -537,7 +761,8 @@ if __name__ == "__main__":
             gpu_list = er_g2a_gpu[g2a_game_id]
             cpu_list = er_g2a_cpu[g2a_game_id]
 
-            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list)
+            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform[igdb_game_id],
+                                       er_publisher[igdb_game_id], er_developer[igdb_game_id])
             break
-
+    # print(g2a_games['mgns_g2a_games_with_requirements_0'])
     my_game_kg.storeKG("sample_game_kg.ttl")
