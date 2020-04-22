@@ -737,7 +737,7 @@ if __name__ == "__main__":
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu.jl"
+    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu_cleaned.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
