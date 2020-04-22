@@ -82,6 +82,8 @@ class GameKG:
         self.my_kg.add((self.graphics_global, self.MGNS['TMUs'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.MGNS['ROPs'], XSD.integer))
         self.my_kg.add((self.graphics_global, self.SCHEMA['url'], self.SCHEMA['URL']))
+        self.my_kg.add((self.graphics_global, self.MGNS['g3dMark'], XSD.integer))
+
 
         ## Minimum Supporting Device Class ##
         self.msd_global = URIRef(self.MGNS["MSD"])
@@ -335,6 +337,7 @@ class GameKG:
         self.my_kg.add((cur_uri, RDF.type, self.graphics_global))
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["product_name"], lang="en")))
         self.my_kg.add((cur_uri, self.SCHEMA['url'], Literal(cur_val["product_url"], lang="en")))
+        self.my_kg.add((cur_uri, self.SCHEMA['g3dMark'], Literal(cur_val["g3d_mark"], datatype=XSD.integer)))
 
         try:
             if len(cur_val['gpu_chip']) != 0:
@@ -686,28 +689,28 @@ if __name__ == "__main__":
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
 
-    igdb_companies_file = "../data_with_ids/igdb_companies.jl"
+    igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
     with open(igdb_companies_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
             break
 
-    igdb_platforms_file = "../data_with_ids/igdb_platforms.jl"
+    igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
     with open(igdb_platforms_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addPlatformInstance(cur_dict)
             break
 
-    techpowerup_gpu_file = "../data_with_ids/techpowerup_gpu_specs_cleaned.jl"
+    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
     with open(techpowerup_gpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu.jl"
+    techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
