@@ -2,6 +2,7 @@
 from rdflib import Graph, URIRef, BNode, Literal, XSD, Namespace, RDF, RDFS
 import json
 import datetime
+import string
 import jsonlines
 
 
@@ -194,6 +195,42 @@ class GameKG:
     def storeKG(self, kg_file_name):
         self.my_kg.serialize(kg_file_name, format="turtle")
 
+    def __convertSizeToMB(self, cur_size):
+        cur_size = cur_size.lower()
+        cur_val = ""
+        for cur_char in cur_size:
+            if cur_char.isdigit():
+                cur_val += cur_char
+            else:
+                break
+
+        cur_val = int(cur_val)
+        cur_unit = cur_size
+
+        if "kb" in cur_unit:
+            cur_val /= 1024
+        elif "gb" in cur_unit:
+            cur_val *= 1024
+        elif "tb" in cur_unit:
+            cur_val *= (1024 * 1024)
+
+        return cur_val
+
+    def __generateShortURI(self, input_uri):
+        cur_list = input_uri.split("_")
+        short_uri = ""
+        for cur_val in cur_list[:-1]:
+            short_uri += cur_val[0]
+        short_uri += "_" + cur_list[-1]
+        return short_uri
+
+    def __generateURIfromString(self, input_string):
+        input_string = input_string.lower()
+        for cur_punc in string.punctuation:
+            input_string = input_string.replace(cur_punc, " ")
+        cur_uri = "_".join(input_string.split())
+        return cur_uri
+
     def addEnterpriseInstance(self, enterprise_instance):
         cur_uri = URIRef(self.MGNS[list(enterprise_instance.keys())[0]])
         cur_val = list(enterprise_instance.values())[0]
@@ -230,7 +267,8 @@ class GameKG:
     def addSellerInstance(self, seller_instance):
         cur_val = list(seller_instance.values())[0]
         try:
-            cur_uri = URIRef(self.MGNS['_'.join(cur_val['seller_name'].split().strip())])
+            cur_uri = URIRef(self.MGNS[self.__generateURIfromString(cur_val['seller_name'])])
+            self.my_kg.add((cur_uri, RDF.type, self.seller_global))
             self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val['seller_name'], lang='en')))
             self.my_kg.add(
                 (cur_uri, self.MGNS['ratingValue'], Literal(cur_val['seller_rating'][:-1], datatype=XSD.integer)))
@@ -420,7 +458,7 @@ class GameKG:
         cur_val = list(game_mode_instance.values())[0]
         try:
             for mode in cur_val['game_modes']:
-                cur_uri = URIRef(self.MGNS['_'.join(mode.lower().split())])
+                cur_uri = URIRef(self.MGNS[self.__generateURIfromString(mode)])
                 self.my_kg.add((cur_uri, RDF.type, self.game_mode_global))
                 self.my_kg.add((cur_uri, RDFS.label, Literal(mode, lang="en")))
         except:
@@ -430,7 +468,7 @@ class GameKG:
         cur_val = list(genre_instance.values())[0]
         try:
             for genre in cur_val['genre']:
-                cur_uri = URIRef(self.MGNS['_'.join(genre.lower().split())])
+                cur_uri = URIRef(self.MGNS[self.__generateURIfromString(genre)])
                 self.my_kg.add((cur_uri, RDF.type, self.genre_global))
                 self.my_kg.add((cur_uri, RDFS.label, Literal(genre, lang='en')))
         except:
@@ -440,32 +478,11 @@ class GameKG:
         cur_val = list(theme_instance.values())[0]
         try:
             for theme in cur_val['themes']:
-                cur_uri = URIRef(self.MGNS['_'.join(theme.lower().split())])
+                cur_uri = URIRef(self.MGNS[self.__generateURIfromString(theme)])
                 self.my_kg.add((cur_uri, RDF.type, self.theme_global))
                 self.my_kg.add((cur_uri, RDFS.label, Literal(theme, lang='en')))
         except:
             pass
-
-    def __convertSizeToMB(self, cur_size):
-        cur_size = cur_size.lower()
-        cur_val = ""
-        for cur_char in cur_size:
-            if cur_char.isdigit():
-                cur_val += cur_char
-            else:
-                break
-
-        cur_val = int(cur_val)
-        cur_unit = cur_size
-
-        if "kb" in cur_unit:
-            cur_val /= 1024
-        elif "gb" in cur_unit:
-            cur_val *= 1024
-        elif "tb" in cur_unit:
-            cur_val *= (1024 * 1024)
-
-        return cur_val
 
     def addGameInstance(self, igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform, er_publisher,
                         er_developer):
@@ -517,21 +534,21 @@ class GameKG:
             # game mode
             for game_mode in igdb_game['game_modes']:
                 self.my_kg.add(
-                    (cur_uri, self.MGNS['hasGameMode'], URIRef(self.MGNS['_'.join(game_mode.lower().split())])))
+                    (cur_uri, self.MGNS['hasGameMode'], URIRef(self.MGNS[self.__generateURIfromString(game_mode)])))
         except:
             pass
 
         try:
             # game genre
             for genre in igdb_game['genre']:
-                self.my_kg.add((cur_uri, self.MGNS['hasGenre'], URIRef(self.MGNS['_'.join(genre.lower().split())])))
+                self.my_kg.add((cur_uri, self.MGNS['hasGenre'], URIRef(self.MGNS[self.__generateURIfromString(genre)])))
         except:
             pass
 
         try:
             # link game theme
             for theme in igdb_game['themes']:
-                self.my_kg.add((cur_uri, self.MGNS['hasTheme'], URIRef(self.MGNS['_'.join(theme.lower().split())])))
+                self.my_kg.add((cur_uri, self.MGNS['hasTheme'], URIRef(self.MGNS[self.__generateURIfromString(theme)])))
         except:
             pass
 
@@ -557,7 +574,7 @@ class GameKG:
         try:
             # Seller
             self.my_kg.add(
-                (cur_uri, self.MGNS['soldBy'], URIRef(self.MGNS['_'.join(g2a_game['seller_name'].lower().split())])))
+                (cur_uri, self.MGNS['soldBy'], URIRef(self.MGNS[self.__generateURIfromString(g2a_game['seller_name'])])))
         except:
             pass
         try:
@@ -689,28 +706,28 @@ if __name__ == "__main__":
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
 
-    igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
+    igdb_companies_file = "../data_with_ids/igdb_companies.jl"
     with open(igdb_companies_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
             break
 
-    igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
+    igdb_platforms_file = "../data_with_ids/igdb_platforms.jl"
     with open(igdb_platforms_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addPlatformInstance(cur_dict)
             break
 
-    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
+    techpowerup_gpu_file = "../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
     with open(techpowerup_gpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu.jl"
+    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -723,10 +740,10 @@ if __name__ == "__main__":
     er_g2a_igdb_file = "../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4.jl"
     er_g2a_gpu_file = "../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
     er_g2a_cpu_file = "../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
-    platform_file = '../data_er/ER_platform.jl'
-    companies_file = '../data_er/ER_companies.jl'
+    platform_file = '../data_er/ER_platform_sample.jl'
+    companies_file = '../data_er/ER_companies_sample.jl'
 
-    # running "game mode class", "genre class", "theme class"
+    # Adding "game mode class", "genre class", "theme class"
     with open(igdb_games_file, 'r') as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -735,7 +752,7 @@ if __name__ == "__main__":
             my_game_kg.addThemeInstance(cur_dict)
             break
 
-    # running "seller class"
+    # Adding "seller class"
     with open(g2a_games_file, 'r') as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -767,5 +784,5 @@ if __name__ == "__main__":
             my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform[igdb_game_id],
                                        er_publisher[igdb_game_id], er_developer[igdb_game_id])
             break
-    # print(g2a_games['mgns_g2a_games_with_requirements_0'])
+
     my_game_kg.storeKG("sample_game_kg.ttl")
