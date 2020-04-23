@@ -65,6 +65,7 @@ class GameKG:
         self.my_kg.add((self.processor_global, self.MGNS['l3CacheMB'], XSD.integer))
         self.my_kg.add((self.processor_global, self.MGNS['socket'], self.SCHEMA['Text']))
         self.my_kg.add((self.processor_global, self.MGNS['process'], XSD.integer))
+        self.my_kg.add((self.processor_global, self.MGNS['hasCPUMark', XSD.decimal]))
 
         ## Graphics Class ##
         self.graphics_global = URIRef(self.MGNS["Graphics"])
@@ -369,6 +370,11 @@ class GameKG:
         try:
             if cur_val['process'] != -1:
                 self.my_kg.add((cur_uri, self.MGNS['process'], Literal(cur_val['process'], datatype=XSD.integer)))
+        except:
+            pass
+
+        try:
+            self.my_kg.add((cur_uri, self.MGNS['hasCPUMark'], Literal(cur_val['cpu_mark'], datatype = XSD.decimal)))
         except:
             pass
 
@@ -737,7 +743,7 @@ if __name__ == "__main__":
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu_cleaned.jl"
+    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu_cleaned_along_with_benchmark_scores.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
