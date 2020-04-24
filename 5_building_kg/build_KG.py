@@ -722,28 +722,28 @@ if __name__ == "__main__":
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
 
-    igdb_companies_file = "../data_with_ids/igdb_companies.jl"
+    igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
     with open(igdb_companies_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
             break
 
-    igdb_platforms_file = "../data_with_ids/igdb_platforms.jl"
+    igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
     with open(igdb_platforms_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addPlatformInstance(cur_dict)
             break
 
-    techpowerup_gpu_file = "../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
+    techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
     with open(techpowerup_gpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGraphicsInstance(cur_dict)
             break
 
-    techpowerup_cpu_file = "../data_with_ids/techpowerup_cpu_cleaned_along_with_benchmark_scores.jl"
+    techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu_cleaned_along_with_benchmark_scores.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -751,13 +751,13 @@ if __name__ == "__main__":
             break
 
     # Adding Games:
-    g2a_games_file = "../data_with_ids/g2a_games_with_requirements.jl"
-    igdb_games_file = "../data_with_ids/igdb_games.jl"
-    er_g2a_igdb_file = "../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4.jl"
-    er_g2a_gpu_file = "../data_er/ER_g2a_games_gpus_and_techpowerup_gpus_short.jl"
-    er_g2a_cpu_file = "../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
-    platform_file = '../data_er/ER_platform_sample.jl'
-    companies_file = '../data_er/ER_companies_sample.jl'
+    g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
+    igdb_games_file = "../../data_with_ids/igdb_games.jl"
+    er_g2a_igdb_file = "../../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4.jl"
+    er_g2a_gpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus.jl"
+    er_g2a_cpu_file = "../../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
+    platform_file = '../../data_er/ER_platform.jl'
+    companies_file = '../../data_er/ER_companies.jl'
 
     # Adding "game mode class", "genre class", "theme class"
     with open(igdb_games_file, 'r') as f:
