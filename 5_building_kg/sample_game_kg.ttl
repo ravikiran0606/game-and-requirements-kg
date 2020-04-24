@@ -20,17 +20,17 @@ mgns:Enterprise a rdfs:Class ;
 mgns:Game a rdfs:Class ;
     mgns:bestRating xsd:decimal ;
     mgns:developedBy mgns:Enterprise ;
-    mgns:discount schema:Text ;
+    mgns:discount_percent xsd:decimal ;
     mgns:hasGameMode mgns:GameMode ;
     mgns:hasGenre mgns:Genre ;
     mgns:hasMSD mgns:MSD ;
     mgns:hasTheme mgns:Theme ;
-    mgns:oldPrice schema:Text ;
-    mgns:price schema:Text ;
+    mgns:oldPrice_USD xsd:decimal ;
+    mgns:price_USD xsd:decimal ;
     mgns:publishedBy mgns:Enterprise ;
     mgns:ratingCount xsd:integer ;
     mgns:ratingValue xsd:decimal ;
-    mgns:sellerFeedback schema:Text ;
+    mgns:sellerFeedback xsd:integer ;
     mgns:sellerUrl schema:Text ;
     mgns:soldBy mgns:Seller ;
     mgns:supportedPlatform mgns:Platform ;
@@ -80,12 +80,13 @@ mgns:Platform a rdfs:Class ;
     schema:url schema:URL .
 
 mgns:Processor a rdfs:Class ;
+    mgns:hasCPUMark xsd:decimal ;
     mgns:higherClockSpeedghz xsd:decimal ;
     mgns:l3CacheMB xsd:integer ;
     mgns:lowerClockSpeedghz xsd:decimal ;
     mgns:numCore1 xsd:integer ;
     mgns:numCore2 xsd:integer ;
-    mgns:process xsd:integer ;
+    mgns:process_nm xsd:integer ;
     mgns:socket schema:Text ;
     schema:name schema:Text .
 
@@ -115,7 +116,7 @@ mgns:mic_0 a mgns:Enterprise ;
 mgns:mig_10 a mgns:Game ;
     mgns:bestRating 100.0 ;
     mgns:developedBy mgns:mic_3315 ;
-    mgns:discount "71% OFF" ;
+    mgns:discount_percent 71.0 ;
     mgns:hasGameMode mgns:co_operative,
         mgns:multiplayer,
         mgns:single_player ;
@@ -124,6 +125,11 @@ mgns:mig_10 a mgns:Game ;
     mgns:hasMSD [ a mgns:MSD ;
             mgns:diskSpace_MB 8192 ;
             mgns:graphics mgns:mtg_7 ;
+            mgns:memory_MB 2048 ;
+            mgns:processor mgns:mtc_1341 ],
+        [ a mgns:MSD ;
+            mgns:diskSpace_MB 8192 ;
+            mgns:graphics mgns:mtg_2417 ;
             mgns:memory_MB 2048 ;
             mgns:processor mgns:mtc_4 ],
         [ a mgns:MSD ;
@@ -135,23 +141,18 @@ mgns:mig_10 a mgns:Game ;
             mgns:diskSpace_MB 8192 ;
             mgns:graphics mgns:mtg_7 ;
             mgns:memory_MB 2048 ;
-            mgns:processor mgns:mtc_1341 ],
-        [ a mgns:MSD ;
-            mgns:diskSpace_MB 8192 ;
-            mgns:graphics mgns:mtg_2417 ;
-            mgns:memory_MB 2048 ;
             mgns:processor mgns:mtc_4 ] ;
     mgns:hasTheme mgns:action,
         mgns:horror,
         mgns:survival ;
-    mgns:old_price "22.33 USD" ;
-    mgns:price "6.32 USD" ;
+    mgns:old_price_USD 22.33 ;
+    mgns:price_USD 6.32 ;
     mgns:publisherBy mgns:mic_18896,
         mgns:mic_3309,
         mgns:mic_3315 ;
     mgns:ratingCount 88 ;
     mgns:ratingValue 72.0 ;
-    mgns:sellerFeedback "Positive feedback" ;
+    mgns:sellerFeedback 1 ;
     mgns:sellerURL "https://www.g2a.com/en-us/batman-arkham-asylum-goty-steam-key-global-i10000001347004" ;
     mgns:soldBy mgns:gbgames ;
     mgns:supportedPlatform mgns:mip_125,
@@ -171,6 +172,12 @@ mgns:mip_0 a mgns:Platform ;
     mgns:platformType "Console"@en .
 
 mgns:mtc_0 a mgns:Processor ;
+    mgns:hasCPUMark 70336.87 ;
+    mgns:higherClockSpeedghz 4.3 ;
+    mgns:lowerClockSpeedghz 2.9 ;
+    mgns:numCore1 64 ;
+    mgns:numCore2 128 ;
+    mgns:process_nm 7 ;
     mgns:socket "Socket TR4"@en ;
     schema:name "Ryzen Threadripper 3990X"@en .
 

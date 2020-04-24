@@ -64,8 +64,8 @@ class GameKG:
         self.my_kg.add((self.processor_global, self.MGNS['higherClockSpeedghz'], XSD.decimal))
         self.my_kg.add((self.processor_global, self.MGNS['l3CacheMB'], XSD.integer))
         self.my_kg.add((self.processor_global, self.MGNS['socket'], self.SCHEMA['Text']))
-        self.my_kg.add((self.processor_global, self.MGNS['process'], XSD.integer))
-        self.my_kg.add((self.processor_global, self.MGNS['hasCPUMark', XSD.decimal]))
+        self.my_kg.add((self.processor_global, self.MGNS['process_nm'], XSD.integer))
+        self.my_kg.add((self.processor_global, self.MGNS['hasCPUMark'], XSD.decimal))
 
         ## Graphics Class ##
         self.graphics_global = URIRef(self.MGNS["Graphics"])
@@ -127,10 +127,10 @@ class GameKG:
         self.my_kg.add((self.game_global, self.MGNS["ratingCount"], XSD.integer))
         self.my_kg.add((self.game_global, self.MGNS["bestRating"], XSD.decimal))
         self.my_kg.add((self.game_global, self.MGNS["soldBy"], self.seller_global))
-        self.my_kg.add((self.game_global, self.MGNS["price"], self.SCHEMA["Text"]))
-        self.my_kg.add((self.game_global, self.MGNS["oldPrice"], self.SCHEMA["Text"]))
-        self.my_kg.add((self.game_global, self.MGNS["discount"], self.SCHEMA["Text"]))
-        self.my_kg.add((self.game_global, self.MGNS["sellerFeedback"], self.SCHEMA["Text"]))
+        self.my_kg.add((self.game_global, self.MGNS["price_USD"], XSD.decimal))
+        self.my_kg.add((self.game_global, self.MGNS["oldPrice_USD"], XSD.decimal))
+        self.my_kg.add((self.game_global, self.MGNS["discount_percent"], XSD.decimal))
+        self.my_kg.add((self.game_global, self.MGNS["sellerFeedback"], XSD.integer))
         self.my_kg.add((self.game_global, self.MGNS["sellerUrl"], self.SCHEMA["Text"]))
 
     '''def define_properties(self):
@@ -369,7 +369,7 @@ class GameKG:
 
         try:
             if cur_val['process'] != -1:
-                self.my_kg.add((cur_uri, self.MGNS['process'], Literal(cur_val['process'], datatype=XSD.integer)))
+                self.my_kg.add((cur_uri, self.MGNS['process_nm'], Literal(cur_val['process'], datatype=XSD.integer)))
         except:
             pass
 
@@ -595,25 +595,34 @@ class GameKG:
             pass
         try:
             # Link game best price
-            self.my_kg.add((cur_uri, self.MGNS['price'], Literal(g2a_game['seller_price'])))
+            cur_price = float(g2a_game['seller_price'].split()[0])
+            self.my_kg.add((cur_uri, self.MGNS['price_USD'], Literal(cur_price, datatype=XSD.decimal)))
         except:
             pass
 
         try:
             # Link game old price
-            self.my_kg.add((cur_uri, self.MGNS['old_price'], Literal(g2a_game['seller_old_price'])))
+            cur_price = float(g2a_game['seller_old_price'].split()[0])
+            self.my_kg.add((cur_uri, self.MGNS['old_price_USD'], Literal(cur_price, datatype=XSD.decimal)))
         except:
             pass
 
         try:
             # Link discount provided
-            self.my_kg.add((cur_uri, self.MGNS['discount'], Literal(g2a_game['seller_discount'])))
+            cur_discount = float(g2a_game['seller_discount'].split("%")[0])
+            self.my_kg.add((cur_uri, self.MGNS['discount_percent'], Literal(cur_discount, datatype=XSD.decimal)))
         except:
             pass
 
         try:
             # Seller Feedback message
-            self.my_kg.add((cur_uri, self.MGNS['sellerFeedback'], Literal(g2a_game['seller_feedback_msg'])))
+            cur_feedback = g2a_game['seller_feedback_msg']
+            if cur_feedback is None:
+                cur_feedback_val = 0
+            elif cur_feedback == "Positive feedback":
+                cur_feedback_val = 1
+
+            self.my_kg.add((cur_uri, self.MGNS['sellerFeedback'], Literal(cur_feedback_val, datatype=XSD.integer)))
         except:
             pass
 
@@ -753,10 +762,10 @@ if __name__ == "__main__":
     # Adding Games:
     g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
     igdb_games_file = "../../data_with_ids/igdb_games.jl"
-    er_g2a_igdb_file = "../../data_er/er_g2a_igdb_levenshtein_jaro_rijul_v4.jl"
+    er_g2a_igdb_file = "../../data_er/ER_g2a_games_igdb_games.jl"
     er_g2a_gpu_file = "../../data_er/ER_g2a_games_gpus_and_techpowerup_gpus.jl"
-    er_g2a_cpu_file = "../../data_er/g2a_game_techpowerup_cpu_er_v3.jl"
-    platform_file = '../../data_er/ER_platform.jl'
+    er_g2a_cpu_file = "../../data_er/ER_g2a_game_cpus_techpowerup_cpus.jl"
+    platform_file = '../../data_er/ER_platforms.jl'
     companies_file = '../../data_er/ER_companies.jl'
 
     # Adding "game mode class", "genre class", "theme class"
