@@ -4,6 +4,7 @@ import json
 import datetime
 import string
 import jsonlines
+import time
 
 
 class GameKG:
@@ -730,34 +731,64 @@ if __name__ == "__main__":
     my_game_kg = GameKG()
     my_game_kg.define_namespaces()
     my_game_kg.define_ontology()
+    batch_size_timer = 1000
 
+    start_time = time.time()
+    count = 0
     igdb_companies_file = "../../data_with_ids/igdb_companies.jl"
     with open(igdb_companies_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addEnterpriseInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
 
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("1. IGDB Companies - Seconds Elapsed = ", seconds_elapsed)
+
+    count = 0
     igdb_platforms_file = "../../data_with_ids/igdb_platforms.jl"
     with open(igdb_platforms_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addPlatformInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
 
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("2. IGDB Platforms - Seconds Elapsed = ", seconds_elapsed)
+
+    count = 0
     techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs_cleaned_with_scores.jl"
     with open(techpowerup_gpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGraphicsInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
 
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("3. Techpowerup GPUs - Seconds Elapsed = ", seconds_elapsed)
+
+    count = 0
     techpowerup_cpu_file = "../../data_with_ids/techpowerup_cpu_cleaned_along_with_benchmark_scores.jl"
     with open(techpowerup_cpu_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addProcessorInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
+
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("4. Techpowerup CPUs - Seconds Elapsed = ", seconds_elapsed)
 
     # Adding Games:
     g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
@@ -769,20 +800,34 @@ if __name__ == "__main__":
     companies_file = '../../data_er/ER_companies.jl'
 
     # Adding "game mode class", "genre class", "theme class"
+    count = 0
     with open(igdb_games_file, 'r') as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addGameModeInstance(cur_dict)
             my_game_kg.addGenreInstance(cur_dict)
             my_game_kg.addThemeInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
+
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("5. IGDB Game modes, Genres, Themes - Seconds Elapsed = ", seconds_elapsed)
 
     # Adding "seller class"
+    count = 0
     with open(g2a_games_file, 'r') as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
             my_game_kg.addSellerInstance(cur_dict)
-            break
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
+
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("6. G2A Sellers - Seconds Elapsed = ", seconds_elapsed)
 
     g2a_games = constructDictfromJL(g2a_games_file)
     igdb_games = constructDictfromJL(igdb_games_file)
@@ -791,23 +836,53 @@ if __name__ == "__main__":
     er_platform = createMAPforplatform(platform_file)
     er_publisher, er_developer = createMAPforpublisher_developer(companies_file)
 
+    count = 0
     with open(er_g2a_igdb_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
 
-            # igdb_game_id = cur_dict["igdb_key"]
-            igdb_game_id = "mgns_igdb_games_10"
+            igdb_game_id = cur_dict["igdb_key"]
             igdb_game = igdb_games[igdb_game_id]
 
-            # g2a_game_id = cur_dict["similar_g2a_key"]
-            g2a_game_id = "mgns_g2a_games_with_requirements_10"
-            g2a_game = g2a_games[g2a_game_id]
+            try:
+                g2a_game_id = cur_dict["similar_g2a_key"]
+                g2a_game = g2a_games[g2a_game_id]
+            except:
+                g2a_game = {}
 
-            gpu_list = er_g2a_gpu[g2a_game_id]
-            cpu_list = er_g2a_cpu[g2a_game_id]
+            try:
+                gpu_list = er_g2a_gpu[g2a_game_id]
+            except:
+                gpu_list = []
 
-            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, er_platform[igdb_game_id],
-                                       er_publisher[igdb_game_id], er_developer[igdb_game_id])
-            break
+            try:
+                cpu_list = er_g2a_cpu[g2a_game_id]
+            except:
+                cpu_list = []
 
-    my_game_kg.storeKG("sample_game_kg.ttl")
+            try:
+                platforms = er_platform[igdb_game_id]
+            except:
+                platforms = []
+
+            try:
+                publishers = er_publisher[igdb_game_id]
+            except:
+                publishers = []
+
+            try:
+                developers = er_developer[igdb_game_id]
+            except:
+                developers = []
+
+            my_game_kg.addGameInstance(igdb_game_id, igdb_game, g2a_game, gpu_list, cpu_list, platforms,
+                                       publishers, developers)
+            count += 1
+            if count % batch_size_timer == 0:
+                print("Progress cnt = ", count)
+
+    cur_time = time.time()
+    seconds_elapsed = cur_time - start_time
+    print("7. IGDB Games - Seconds Elapsed = ", seconds_elapsed)
+
+    my_game_kg.storeKG("Game_KG.ttl")

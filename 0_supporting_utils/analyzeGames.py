@@ -121,6 +121,22 @@ if __name__ == "__main__":
     # findBlockingKeysStats(g2a_games, igdb_games)
     # findFirstWordFrequencies(g2a_games, igdb_games)
 
+    t = dict()
+    for key, val in g2a_games.items():
+        try:
+            tt = val['seller_feedback_msg']
+            if tt is None:
+                print(tt)
+
+            if t.get(tt) is None:
+                t[tt] = 0
+
+            t[tt] += 1
+        except:
+            pass
+
+    print(t)
+
 
 
 

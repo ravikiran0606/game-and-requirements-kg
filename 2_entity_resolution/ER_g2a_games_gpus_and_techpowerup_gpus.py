@@ -163,9 +163,9 @@ def getMostSimilarGPU_Techpowerup(input_gpu):
     return gpu1, gpu2
 
 if __name__ == "__main__":
-    g2a_games_file = "../../data_with_ids/sample_g2a_games_with_requirements.jl"
+    g2a_games_file = "../../data_with_ids/g2a_games_with_requirements.jl"
     techpowerup_gpu_file = "../../data_with_ids/techpowerup_gpu_specs.jl"
-    out_file = "ER_g2a_games_gpus_and_techpowerup_gpus_short_2.jl"
+    out_file = "ER_g2a_games_gpus_and_techpowerup_gpus.jl"
 
     techpowerup_gpus = constructDictfromJL(techpowerup_gpu_file)
     gpu_blocks = createBlocks()
