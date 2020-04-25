@@ -5,5 +5,6 @@ def sayHello():
     return result
 
 def getGameInformation(game_id):
-    result_dict = {}
-    return result_dict
+    game_info_dict = {}
+    recommended_games_info_dict = {}
+    return game_info_dict, recommended_games_info_dict

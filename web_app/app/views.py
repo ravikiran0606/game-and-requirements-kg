@@ -16,8 +16,9 @@ def queryPage():
 @app.route('/game', methods=['GET'])
 def gamePage():
     game_id = request.args.get("game_id")
-    result_dict = getGameInformation(game_id)
-    return render_template('game.html', result=result_dict)
+    game_info, recommended_games_info = getGameInformation(game_id)
+
+    return render_template('game.html', game_info=game_info, rec_games_info=recommended_games_info)
 
 @app.route('/visualize')
 def visualizationPage():
