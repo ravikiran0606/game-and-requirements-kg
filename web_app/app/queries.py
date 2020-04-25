@@ -1,4 +1,5 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
+from collections import defaultdict
 
 
 def generate_visualization_data(class_name, property_name):
@@ -126,7 +127,51 @@ def sayHello():
     return result
 
 def getGameInformation(game_id):
-    game_info_dict = {}
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    game_info_dict = defaultdict(lambda: set())
     recommended_games_info_dict = {}
+    sparql.setQuery('''
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX mgns: <http://inf558.org/games#> 
+    PREFIX schema: <http://schema.org/>
+    
+    #SELECT ?game_summary ?name ?released_year ?platform_name ?developer_name ?publisher_name ?game_mode_label ?genre_label ?theme_label ?#rating ?seller_name ?price ?discount ?url
+    SELECT ?game_summary ?name ?released_year ?platform_name ?developer_name ?publisher_name ?game_mode_label ?genre_label ?theme_label ?rating ?seller_name ?price ?discount ?url
+    WHERE{
+      mgns:'''+game_id+''' a mgns:Game ;
+                 schema:name ?name ;
+                 schema:description ?game_summary ;
+                 schema:datePublished ?released_year ;
+  OPTIONAL{mgns:'''+game_id+''' mgns:supportedPlatform ?platform ;
+                      mgns:platformName ?platform_name} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:developedBy ?developer ;
+                      schema:name ?developer_name } .
+  OPTIONAL{mgns:'''+game_id+''' mgns:publishedBy ?publisher ;
+                      schema:name ?publisher_name} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:hasGameMode ?game_mode ;
+                      rdfs:label ?game_mode_label }.
+  OPTIONAL{mgns:'''+game_id+''' mgns:hasGenre ?genre ;
+                      rdfs:label ?genre_label }.
+  OPTIONAL{mgns:'''+game_id+''' mgns:hasTheme ?theme ;
+                      rdfs:label ?theme_label}.
+  OPTIONAL{mgns:'''+game_id+''' mgns:ratingValue ?rating} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:soldBy ?seller;
+                      schema:name ?seller_name} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:price_USD ?price} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:discount_percent ?discount} .
+  OPTIONAL{mgns:'''+game_id+''' mgns:sellerURL ?url} .
+  
+  
+}
+        ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        for key in result.keys():
+            game_info_dict[key].add(result[key]['value'])
+    for key in game_info_dict.keys():
+        game_info_dict[key] = list(game_info_dict[key])
     return game_info_dict, recommended_games_info_dict
 
