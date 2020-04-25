@@ -520,7 +520,7 @@ class GameKG:
 
         try:
             # add release date
-            self.my_kg.add((cur_uri, self.SCHEMA['datePublished'], Literal(igdb_game['release_date'][:4], datatype = xsd.integer)))
+            self.my_kg.add((cur_uri, self.SCHEMA['datePublished'], Literal(int(igdb_game['release_date'][:4]), datatype=XSD.integer)))
         except:
             pass
 
