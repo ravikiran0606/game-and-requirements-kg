@@ -1,9 +1,12 @@
 from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
+from app.queries import sayHello
 
 @app.route('/')
 def main():
+    result = sayHello()
+    print(result)
     return render_template('index.html')
 
 @app.route('/query')
