@@ -573,14 +573,22 @@ class GameKG:
 
         try:
             # Rating Value
-            self.my_kg.add((cur_uri, self.MGNS['ratingValue'], Literal(igdb_game['game_rating'], datatype=XSD.decimal)))
+            try:
+                rating_val = float(igdb_game['game_rating'])
+            except:
+                rating_val = -1
+            self.my_kg.add((cur_uri, self.MGNS['ratingValue'], Literal(rating_val, datatype=XSD.decimal)))
         except:
             pass
 
         try:
             # Rating Count
+            try:
+                rating_cnt = int(igdb_game['num_rating_counts'])
+            except:
+                rating_cnt = -1
             self.my_kg.add(
-                (cur_uri, self.MGNS['ratingCount'], Literal(igdb_game['num_rating_counts'], datatype=XSD.integer)))
+                (cur_uri, self.MGNS['ratingCount'], Literal(rating_cnt, datatype=XSD.integer)))
         except:
             pass
 
