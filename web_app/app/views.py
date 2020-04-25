@@ -2,10 +2,12 @@ from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
 from app.queries import sayHello, getGameInformation
+from app.queries import generate_visualization_data
+
 
 @app.route('/')
 def main():
-    result = sayHello()
+    result = generate_visualization_data("Game",'ratingValue')
     print(result)
     return render_template('index.html')
 
