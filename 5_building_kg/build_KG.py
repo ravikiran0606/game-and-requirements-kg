@@ -5,6 +5,7 @@ import datetime
 import string
 import jsonlines
 import time
+from datetime import datetime
 
 
 class GameKG:
@@ -517,10 +518,11 @@ class GameKG:
         except:
             pass
 
-        '''try:
+        try:
             # add release date
+            self.my_kg.add((cur_uri, self.SCHEMA['datePublished'], Literal(igdb_game['release_date'][:-15], datatype = xsd.date)))
         except:
-            pass'''
+            pass
 
         try:
             if len(er_platform) != 0:
@@ -543,7 +545,7 @@ class GameKG:
             # Link publisher
             for comp in er_publisher:
                 comp = self.__generateShortURI(comp)
-                self.my_kg.add((cur_uri, self.MGNS['publisherBy'], URIRef(self.MGNS[comp])))
+                self.my_kg.add((cur_uri, self.MGNS['publishedBy'], URIRef(self.MGNS[comp])))
         except:
             pass
 
