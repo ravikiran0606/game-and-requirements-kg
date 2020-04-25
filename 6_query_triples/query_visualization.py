@@ -2,7 +2,15 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 
 def generate_visualization_data_discrete(class_name,property_name):
-    store_result = dict()
+    '''
+    :param class_name: Name of class in the KG
+    :param property_name: Name of the property in the KG
+    :return: tuple of form (a,b) where
+    a is a list of tuples of the form (x,y) and is sorted on y ---> x is label and y is count
+    b is a string either "continuous" or "discrete"
+    depending on the type
+    '''
+    store_result = list()
     if (class_name == 'Game') and (property_name == 'hasGenre' or property_name == 'hasTheme' or property_name == 'hasGameMode'):
 
         sparql.setQuery('''
@@ -91,7 +99,7 @@ def generate_visualization_data_discrete(class_name,property_name):
 
     #print(results)
     for result in results['results']['bindings']:
-        store_result[result['label']['value']] = result['countLabel']['value']
+        store_result.append((result['label']['value'],result['countLabel']['value']))
     type_of_key = results['results']['bindings'][0]['label']
     if ('xml:lang' in type_of_key) or ('datatype' in type_of_key and 'integer' in type_of_key['datatype']):
         return store_result, "discrete"
