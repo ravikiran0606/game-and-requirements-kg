@@ -4,16 +4,45 @@ from flask import Flask, flash, render_template, json, request, redirect, sessio
 from app.queries import sayHello, getGameInformation, getClassProperties, getDevelopers, getGenres
 from app.queries import generate_visualization_data
 
+gl_hdd_space = None
+gl_ram = None
+gl_processor = None
+gl_graphics_card = None
+
 @app.route('/')
 def main():
     return render_template('index.html')
 
-@app.route('/storeConfig')
+@app.route('/storeConfig', methods=['GET', 'POST'])
 def storeConfig():
-    pass
+    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
+
+    hdd_space = request.form["hdd_space"]
+    ram = request.form["ram"]
+    processor = request.form["processor"]
+    graphics_card = request.form["graphics_card"]
+
+    gl_hdd_space = hdd_space
+    gl_ram = ram
+    gl_processor = processor
+    gl_graphics_card = graphics_card
+    print([gl_hdd_space, gl_ram, gl_processor, gl_graphics_card])
+
+    valid_flag = 1
+
+    if len(gl_hdd_space) == 0 or len(gl_ram) == 0 or len(gl_processor) == 0 or len(gl_graphics_card) == 0:
+        valid_flag = 0
+
+    if valid_flag == 1:
+        return "<h3 class=\"w3-green\">Successfully stored the device configuration!</h3>"
+    else:
+        return "<h3 class=\"w3-red\">The given device configuration is invalid! Please submit again!</h3>"
 
 @app.route('/query')
 def queryPage():
+    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
+
+    print(gl_hdd_space, gl_ram, gl_processor, gl_graphics_card)
     developer_list = getDevelopers()
     genre_list = getGenres()
     return render_template('query.html', developer_list=developer_list, genre_list=genre_list)
