@@ -294,8 +294,6 @@ def getGenres():
 
     return genre_list
 
-
-
 def getDevelopers():
     developer_list = []
     return developer_list
@@ -309,7 +307,7 @@ def getClassProperties():
     class_properties_dict['Seller'] = ['ratingValue']
     return class_properties_dict
 
-def prefix():
+def getPrefixQuery():
     prefix = '''
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -319,63 +317,72 @@ def prefix():
     '''
     return prefix
 
-def game_name():
+def getGameNameQuery():
     pattern = '''
     {
-    ?game a mgns:Game .
-    ?game schema:name ?name .
-    }
-    '''
-    return pattern
-def released_year_query(released_year):
-    pattern = '''
-    {
-    ?game schema:datePublished ?date .
-    FILTER(?date = '''+str(released_year)+''')
+    ?game_id a mgns:Game .
+    ?game_id schema:name ?game_name .
     }
     '''
     return pattern
 
-def genre(genre):
+def getReleasedYearQuery(released_year):
     pattern = '''
     {
-      ?game mgns:hasGenre ?genre .
-      ?genre rdfs:label ''' + str(genre) + '''@en .
+    ?game_id schema:datePublished ?released_year .
+    FILTER(?released_year = ''' + str(released_year) + ''')
+    }
+    '''
+    return pattern
+
+def getGenreQuery(genre):
+    pattern = '''
+    {
+      ?game_id mgns:hasGenre ?genre .
+      ?genre rdfs:label \"''' + str(genre) + '''\"@en .
       }
     '''
     return pattern
 
-def rating(min_rating):
+def getMinRatingQuery(min_rating):
     pattern = '''
     { 
-      ?game mgns:ratingValue ?label .
-      FILTER(?label > '''+str(min_rating)+''')
+      ?game_id mgns:ratingValue ?rating_value .
+      FILTER(?rating_value > ''' + str(min_rating) + ''')
     }
     '''
     return pattern
 
-def create_query(released_year = None,genre_men = None,min_rating = None):
+def create_query(released_year = None, genre_label = None, min_rating = None):
     query = ''
-    query += game_name()
-    if released_year != None:
-        query += released_year_query(released_year)
-    if genre != None:
-        query += genre(genre_men)
-    if min_rating != None:
-        query += rating(min_rating)
-    #print(query)
+    query += getGameNameQuery()
+    if len(released_year) != 0:
+        query += getReleasedYearQuery(int(released_year))
+    if len(genre_label) != 0:
+        query += getGenreQuery(genre_label)
+    if len(min_rating) != 0:
+        query += getMinRatingQuery(int(min_rating))
     return query
 
-def final_query():
+def final_query(param_dict):
     sparql = SPARQLWrapper("http://localhost:3030/games/query")
-    prefix_query = prefix()
-    query_generated = create_query(released_year=2007, genre_men='"Adventure"', min_rating=60)
+    prefix_query = getPrefixQuery()
+    query_generated = create_query(released_year=param_dict["released_year"], genre_label=param_dict["genre"], min_rating=param_dict["min_rating"])
     query = prefix_query + 'select *' + '\n where {' + query_generated + '}'
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
-    res = defaultdict(lambda: list())
+    res = dict()
+    cols = []
+    data = []
     for result in results['results']['bindings']:
+        if len(cols) == 0:
+            cols = list(result.keys())
+        cur_dict = {}
         for key in result.keys():
-            res[key].append(result[key]['value'])
+            cur_dict[key] = result[key]['value']
+        data.append(cur_dict)
+
+    res["cols"] = cols
+    res["data"] = data
     return res

@@ -2,7 +2,7 @@ from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
 from app.queries import sayHello, getGameInformation, getClassProperties, getDevelopers, getGenres
-from app.queries import generate_visualization_data
+from app.queries import generate_visualization_data, final_query
 
 gl_hdd_space = None
 gl_ram = None
@@ -43,9 +43,18 @@ def queryPage():
     global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
 
     print(gl_hdd_space, gl_ram, gl_processor, gl_graphics_card)
-    developer_list = getDevelopers()
-    genre_list = getGenres()
+    developer_list = [] #getDevelopers()
+    genre_list = [] #getGenres()
     return render_template('query.html', developer_list=developer_list, genre_list=genre_list)
+
+@app.route('/queryData', methods=['GET', 'POST'])
+def queryData():
+    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
+    input_param_dict = dict(request.form)
+    print(input_param_dict)
+    result_dict = final_query(input_param_dict)
+    return result_dict
+
 
 @app.route('/game', methods=['GET'])
 def gamePage():
