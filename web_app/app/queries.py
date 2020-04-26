@@ -93,24 +93,26 @@ def generate_visualization_data(class_name, property_name):
         results = sparql.query().convert()
 
     if (class_name == 'Game' or class_name == 'Seller' or class_name == 'Enterprise') and (property_name == 'ratingValue'):
+        cont_val = []
         sparql.setQuery('''
                 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX mgns: <http://inf558.org/games#>
                 PREFIX schema: <http://schema.org/>
-                SELECT ?label (count(?label) as ?countLabel)
+                SELECT ?label 
                 WHERE{
                   ?game a mgns:'''+class_name+''' .
                   ?game mgns:ratingValue ?label .
+                  FILTER(?label != -1)
 
                 }
-                group by ?label
-                order by desc(?countLabel)
-                LIMIT 20
                 ''')
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
+        for result in results['results']['bindings']:
+            store_result.append(result['label']['value'])
+        return store_result
 
     if (class_name == 'Game') and (property_name == 'datePublished'):
         sparql.setQuery('''
