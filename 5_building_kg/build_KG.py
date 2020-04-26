@@ -670,8 +670,9 @@ def constructDictfromJL(json_lines_file):
 
 
 def createMAPforGPU(json_lines_file):
-    score_threshold = 0.75
+    score_threshold = 0.60
     result_dict = {}
+    count = 0
     with open(json_lines_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -680,21 +681,29 @@ def createMAPforGPU(json_lines_file):
 
             gpu1 = cur_dict["tpowerup_gpu1"]
             gpu2 = cur_dict["tpowerup_gpu2"]
+            flag = 0
             if bool(gpu1):
                 if gpu1["max_score"] >= score_threshold:
                     val.append(gpu1["max_match_id"])
+                    flag = 1
 
             if bool(gpu2):
                 if gpu2["max_score"] >= score_threshold:
                     val.append(gpu2["max_match_id"])
+                    flag = 1
 
+            if flag == 1:
+                count += 1
             result_dict[key] = val
+
+    print("Num matches for GPU = ", count)
     return result_dict
 
 
 def createMAPforCPU(json_lines_file):
     score_threshold = 1.2
     result_dict = {}
+    count = 0
     with open(json_lines_file, "r") as f:
         for cur_line in f:
             cur_dict = json.loads(cur_line)
@@ -703,16 +712,22 @@ def createMAPforCPU(json_lines_file):
 
             cpu1 = cur_dict["tpowerup_cpu1"]
             cpu2 = cur_dict["tpowerup_cpu2"]
+            flag = 0
             if bool(cpu1):
                 if cpu1["max_match_score"] >= score_threshold:
                     val.append(cpu1["max_match_id"])
+                    flag = 1
 
             if bool(cpu2):
                 if cpu2["max_match_score"] >= score_threshold:
                     val.append(cpu2["max_match_id"])
+                    flag = 1
 
+            if flag == 1:
+                count += 1
             result_dict[key] = val
 
+    print("Num matches for CPU = ", count)
     # print(result_dict)
     return result_dict
 

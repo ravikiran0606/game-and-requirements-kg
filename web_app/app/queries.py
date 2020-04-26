@@ -272,7 +272,29 @@ def getGameInformation(game_id):
 
 def getGenres():
     genre_list = []
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery('''
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX mgns: <http://inf558.org/games#>
+        PREFIX schema: <http://schema.org/>
+        SELECT distinct ?genre_label
+        WHERE{
+          ?game a mgns:Game .
+          ?game mgns:hasGenre ?genre .
+          ?genre rdfs:label ?genre_label
+
+        }
+        ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        genre_list.append(result['genre_label']['value'])
+
     return genre_list
+
+
 
 def getDevelopers():
     developer_list = []
@@ -287,3 +309,73 @@ def getClassProperties():
     class_properties_dict['Seller'] = ['ratingValue']
     return class_properties_dict
 
+def prefix():
+    prefix = '''
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX mgns: <http://inf558.org/games#> 
+    PREFIX schema: <http://schema.org/>
+    '''
+    return prefix
+
+def game_name():
+    pattern = '''
+    {
+    ?game a mgns:Game .
+    ?game schema:name ?name .
+    }
+    '''
+    return pattern
+def released_year_query(released_year):
+    pattern = '''
+    {
+    ?game schema:datePublished ?date .
+    FILTER(?date = '''+str(released_year)+''')
+    }
+    '''
+    return pattern
+
+def genre(genre):
+    pattern = '''
+    {
+      ?game mgns:hasGenre ?genre .
+      ?genre rdfs:label ''' + str(genre) + '''@en .
+      }
+    '''
+    return pattern
+
+def rating(min_rating):
+    pattern = '''
+    { 
+      ?game mgns:ratingValue ?label .
+      FILTER(?label > '''+str(min_rating)+''')
+    }
+    '''
+    return pattern
+
+def create_query(released_year = None,genre_men = None,min_rating = None):
+    query = ''
+    query += game_name()
+    if released_year != None:
+        query += released_year_query(released_year)
+    if genre != None:
+        query += genre(genre_men)
+    if min_rating != None:
+        query += rating(min_rating)
+    #print(query)
+    return query
+
+def final_query():
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    prefix_query = prefix()
+    query_generated = create_query(released_year=2007, genre_men='"Adventure"', min_rating=60)
+    query = prefix_query + 'select *' + '\n where {' + query_generated + '}'
+    sparql.setQuery(query)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    res = defaultdict(lambda: list())
+    for result in results['results']['bindings']:
+        for key in result.keys():
+            res[key].append(result[key]['value'])
+    return res
