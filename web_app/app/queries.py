@@ -12,7 +12,7 @@ def generate_visualization_data(class_name, property_name):
     '''
 
     '''
-        works for 
+        works for
         1. Game ---> hasGenre
         2. Game ---> hasTheme
         3. Game ---> hasGameMode
@@ -31,7 +31,7 @@ def generate_visualization_data(class_name, property_name):
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX mgns: <http://inf558.org/games#> 
+        PREFIX mgns: <http://inf558.org/games#>
         PREFIX schema: <http://schema.org/>
         SELECT ?label (count(?label) as ?countLabel)
         WHERE{
@@ -40,7 +40,7 @@ def generate_visualization_data(class_name, property_name):
           ?genre rdfs:label ?label
         }
         group by ?label
-        order by desc(?countLabel) 
+        order by desc(?countLabel)
         LIMIT 20
         ''')
         sparql.setReturnFormat(JSON)
@@ -52,18 +52,18 @@ def generate_visualization_data(class_name, property_name):
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX mgns: <http://inf558.org/games#> 
+        PREFIX mgns: <http://inf558.org/games#>
         PREFIX schema: <http://schema.org/>
 
         SELECT ?label (count(?label) as ?countLabel)
         WHERE{
           ?game a mgns:Game .
           ?game mgns:''' + property_name + ''' ?s .
-          ?s schema:name ?label . 
+          ?s schema:name ?label .
 
         }
         group by ?label
-        order by desc(?countLabel) 
+        order by desc(?countLabel)
         LIMIT 20
         ''')
         sparql.setReturnFormat(JSON)
@@ -74,18 +74,18 @@ def generate_visualization_data(class_name, property_name):
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX mgns: <http://inf558.org/games#> 
+        PREFIX mgns: <http://inf558.org/games#>
         PREFIX schema: <http://schema.org/>
 
         SELECT ?label (count(?label) as ?countLabel)
         WHERE{
           ?game a mgns:Game .
           ?game mgns:hasMSD ?s .
-          ?s mgns:''' + property_name + ''' ?label . 
+          ?s mgns:''' + property_name + ''' ?label .
 
         }
         group by ?label
-        order by desc(?countLabel) 
+        order by desc(?countLabel)
         LIMIT 20
         ''')
         sparql.setReturnFormat(JSON)
@@ -96,7 +96,7 @@ def generate_visualization_data(class_name, property_name):
                 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                PREFIX mgns: <http://inf558.org/games#> 
+                PREFIX mgns: <http://inf558.org/games#>
                 PREFIX schema: <http://schema.org/>
                 SELECT ?label (count(?label) as ?countLabel)
                 WHERE{
@@ -105,7 +105,7 @@ def generate_visualization_data(class_name, property_name):
 
                 }
                 group by ?label
-                order by desc(?countLabel) 
+                order by desc(?countLabel)
                 LIMIT 20
                 ''')
         sparql.setReturnFormat(JSON)
@@ -130,3 +130,6 @@ def getGameInformation(game_id):
     recommended_games_info_dict = {}
     return game_info_dict, recommended_games_info_dict
 
+def getClassProperties():
+    class_properties_dict = {}
+    return class_properties_dict
