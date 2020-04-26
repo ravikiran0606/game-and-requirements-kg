@@ -118,7 +118,7 @@ if __name__ == '__main__':
     3. Game ---> hasGameMode
     4. Game ---> soldBy
     5. Game ---> developedBy
-    6. Game ---> publisherBy
+    6. Game ---> publishedBy
     7. Game ---> memory_MB
     8. Game ---> diskSpace_MB
     9. Game ---> ratingValue
