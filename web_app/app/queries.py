@@ -144,10 +144,6 @@ def generate_visualization_data(class_name, property_name):
 
     return store_result
 
-def sayHello():
-    result = "Hello world"
-    return result
-
 def getGameInformation(game_id):
     sparql = SPARQLWrapper("http://localhost:3030/games/query")
     game_info_dict = defaultdict(lambda: set())
@@ -198,72 +194,72 @@ def getGameInformation(game_id):
 
 
     if 'game_summary' in game_info_dict:
-        game_info_dict['game_summary'] = ','.join(x for x in game_info_dict['game_summary'])
+        game_info_dict['game_summary'] = ', '.join(x for x in game_info_dict['game_summary'])
     else:
         game_info_dict['game_summary'] = 'Not Available'
 
     if 'name' in game_info_dict:
-        game_info_dict['name'] = ','.join(x for x in game_info_dict['name'])
+        game_info_dict['name'] = ', '.join(x for x in game_info_dict['name'])
     else:
         game_info_dict['name'] = 'Not Available'
 
     if 'released_year' in game_info_dict:
-        game_info_dict['released_year'] = ','.join(x for x in game_info_dict['released_year'])
+        game_info_dict['released_year'] = ', '.join(x for x in game_info_dict['released_year'])
     else:
         game_info_dict['released_year'] = 'Not Available'
 
     if 'platform_name' in game_info_dict:
-        game_info_dict['platform_name'] = ','.join(x for x in game_info_dict['platform_name'])
+        game_info_dict['platform_name'] = ', '.join(x for x in game_info_dict['platform_name'])
     else:
         game_info_dict['platform_name'] = 'Not Available'
 
     if 'developer_name' in game_info_dict:
-        game_info_dict['developer_name'] = ','.join(x for x in game_info_dict['developer_name'])
+        game_info_dict['developer_name'] = ', '.join(x for x in game_info_dict['developer_name'])
     else:
         game_info_dict['developer_name'] = 'Not Available'
 
     if 'publisher_name' in game_info_dict:
-        game_info_dict['publisher_name'] = ','.join(x for x in game_info_dict['publisher_name'])
+        game_info_dict['publisher_name'] = ', '.join(x for x in game_info_dict['publisher_name'])
     else:
         game_info_dict['publisher_name'] = 'Not Available'
 
     if 'game_mode_label' in game_info_dict:
-        game_info_dict['game_mode_label'] = ','.join(x for x in game_info_dict['game_mode_label'])
+        game_info_dict['game_mode_label'] = ', '.join(x for x in game_info_dict['game_mode_label'])
     else:
         game_info_dict['game_mode_label'] = 'Not Available'
 
     if 'genre_label' in game_info_dict:
-        game_info_dict['genre_label'] = ','.join(x for x in game_info_dict['genre_label'])
+        game_info_dict['genre_label'] = ', '.join(x for x in game_info_dict['genre_label'])
     else:
         game_info_dict['genre_label'] = 'Not Available'
 
     if 'theme_label' in game_info_dict:
-        game_info_dict['theme_label'] = ','.join(x for x in game_info_dict['theme_label'])
+        game_info_dict['theme_label'] = ', '.join(x for x in game_info_dict['theme_label'])
     else:
         game_info_dict['theme_label'] = 'Not Available'
 
     if 'rating' in game_info_dict:
-        game_info_dict['rating'] = ','.join(x for x in game_info_dict['rating'])
+        game_info_dict['rating'] = ', '.join(x for x in game_info_dict['rating'])
     else:
         game_info_dict['rating'] = 'Not Available'
 
     if 'seller_name' in game_info_dict:
-        game_info_dict['seller_name'] = ','.join(x for x in game_info_dict['seller_name'])
+        game_info_dict['seller_name'] = ', '.join(x for x in game_info_dict['seller_name'])
     else:
         game_info_dict['seller_name'] = 'Not Available'
 
     if 'price' in game_info_dict:
-        game_info_dict['price'] = ','.join(x for x in game_info_dict['price'])
+        game_info_dict['price'] = ', '.join(x for x in game_info_dict['price'])
     else:
         game_info_dict['price'] = 'Not Available'
 
     if 'discount' in game_info_dict:
-        game_info_dict['discount'] = ','.join(x for x in game_info_dict['discount'])
+        game_info_dict['discount'] = ', '.join(x for x in game_info_dict['discount'])
     else:
         game_info_dict['discount'] = 'Not Available'
 
     if 'url' in game_info_dict:
-        game_info_dict['url'] = ','.join(x for x in game_info_dict['url'])
+        game_info_dict['url'] = ', '.join(x for x in game_info_dict['url'])
     else:
         game_info_dict['url'] = 'Not Available'
 
@@ -293,10 +289,6 @@ def getGenres():
         genre_list.append(result['genre_label']['value'])
 
     return genre_list
-
-def getDevelopers():
-    developer_list = []
-    return developer_list
 
 def getClassProperties():
     class_properties_dict = {}

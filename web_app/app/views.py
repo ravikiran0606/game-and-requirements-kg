@@ -1,7 +1,7 @@
 from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
-from app.queries import sayHello, getGameInformation, getClassProperties, getDevelopers, getGenres
+from app.queries import getGameInformation, getClassProperties, getGenres
 from app.queries import generate_visualization_data, final_query
 
 gl_hdd_space = None
@@ -43,9 +43,8 @@ def queryPage():
     global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
 
     print(gl_hdd_space, gl_ram, gl_processor, gl_graphics_card)
-    developer_list = [] #getDevelopers()
     genre_list = [] #getGenres()
-    return render_template('query.html', developer_list=developer_list, genre_list=genre_list)
+    return render_template('query.html', genre_list=genre_list)
 
 @app.route('/queryData', methods=['GET', 'POST'])
 def queryData():
