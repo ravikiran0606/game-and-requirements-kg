@@ -14,50 +14,98 @@
 		<script>
       	$(document).ready(function() {
 
+      		$("#class_name").change(function () {
+				var cur_class_name = $("#class_name").val();
+
+				cur_url = "http://127.0.0.1:5000/getPropertiesForClass?class_name=" + cur_class_name;
+				$.get(cur_url, function(data, status){
+					vals = data["vals"]
+
+					html_content = "<option value=\"\" disabled selected>Choose the property name</option>"
+					for(i=0; i<vals.length; i++){
+						html_content = html_content + "<option value=\"" + vals[i] + "\">" + vals[i] + "</option>"
+					}
+
+					$("#property_name").html(html_content)
+				});
+
+			});
+
 			$('#visualizeBtn').click(function(){
 
-				// var class_name = $("#class_name").val();
-				// var property_name = $("#property_name").val();
-				var class_name = "Game";
-				var property_name = "ratingValue";
-
-				console.log(class_name, property_name);
-				console.log("hello world");
+				var class_name = $("#class_name").val();
+				var property_name = $("#property_name").val();
 
 				var cur_url = "http://127.0.0.1:5000/getVisualizationData?class_name="+class_name+"&property_name="+property_name;
 				console.log(cur_url);
 
 				Plotly.d3.json(cur_url).get(function (err, rows) {
 
-					x_vals = rows["x_vals"];
-					y_vals = rows["y_vals"];
+					var data_type = rows["data_type"]
+					console.log(data_type)
 
-					console.log(x_vals);
-					console.log(y_vals);
+					if(data_type === "continuous") {
+						var x_vals = rows["x_vals"];
 
-					var data = [
-					  {
-						x: x_vals,
-						y: y_vals,
-						type: 'bar'
-					  }
-					];
+						console.log(x_vals);
 
-					Plotly.newPlot('plot_1', data);
+						var data_1 = [
+							{
+								x: x_vals,
+								type: 'histogram'
+							}
+						];
 
-					var data2 = [{
-					  values: y_vals,
-					  labels: x_vals,
-					  type: 'pie',
-					  transforms: [{
-						type: 'sort',
-						target: 'values',
-						order: 'descending'
-					  }]
-					}];
+						var layout_1 = {
+							  xaxis: {title: "Value"},
+							  yaxis: {title: "Count"}
+						};
 
-					Plotly.newPlot('plot_2', data2);
 
+						$("#plot_1_div").html("<h2> Histogram Plot </h2>");
+						Plotly.newPlot('plot_1', data_1, layout_1);
+
+						// Make the other plot empty
+						$("#plot_2_div").html("")
+						$("#plot_2").html("")
+					}
+					else {
+						var x_vals = rows["x_vals"];
+						var y_vals = rows["y_vals"];
+
+						console.log(x_vals);
+						console.log(y_vals);
+
+						var data_2 = [
+							{
+								x: x_vals,
+								y: y_vals,
+								type: 'bar'
+							}
+						];
+
+						var layout_2 = {
+							  xaxis: {title: "Value"},
+							  yaxis: {title: "Count"}
+						};
+
+						$("#plot_1_div").html("<h2> Bar Plot </h2>");
+						Plotly.newPlot('plot_1', data_2, layout_2);
+
+						var data_3 = [{
+							values: y_vals,
+							labels: x_vals,
+							type: 'pie',
+							transforms: [{
+								type: 'sort',
+								target: 'values',
+								order: 'descending'
+							}]
+						}];
+
+						$("#plot_2_div").html("<h2> Pie Chart </h2>")
+						Plotly.newPlot('plot_2', data_3);
+					}
 				});
 			});
 		});
@@ -90,17 +138,16 @@
 						<label>Class Name:</label>
 						<select class="w3-select" name="class_name" id="class_name">
 						  <option value="" disabled selected>Choose the class name</option>
-						  <option value="1">Option 1</option>
-						  <option value="2">Option 2</option>
-						  <option value="3">Option 3</option>
+							{% if class_list %}
+								{% for i in class_list %}
+									<option value="{{i}}">{{i}}</option>
+								{% endfor %}
+							{% endif %}
 						</select>
 
 						<label>Property Name:</label>
 						<select class="w3-select" name="property_name" id="property_name">
 						  <option value="" disabled selected>Choose the property name</option>
-						  <option value="1">Option 1</option>
-						  <option value="2">Option 2</option>
-						  <option value="3">Option 3</option>
 						</select>
 					</form>
 					<button class="w3-btn w3-blue-grey w3-right w3-margin-top w3-round" id="visualizeBtn">Visualize!</button>
@@ -113,9 +160,7 @@
 			<div class="col-lg-2"></div>
 			<div class="col-lg-8">
 
-				<div class="w3-container w3-dark-gray">
-				  <h2>Bar Plot</h2>
-				</div>
+				<div id="plot_1_div" class="w3-container w3-dark-gray"></div>
 
 				<div id="plot_1"></div>
 
@@ -127,9 +172,7 @@
 			<div class="col-lg-2"></div>
 			<div class="col-lg-8">
 
-				<div class="w3-container w3-dark-gray">
-				  <h2>Pie Chart</h2>
-				</div>
+				<div id="plot_2_div" class="w3-container w3-dark-gray"></div>
 
 				<div id="plot_2"></div>
 

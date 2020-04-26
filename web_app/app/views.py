@@ -6,9 +6,11 @@ from app.queries import generate_visualization_data
 
 @app.route('/')
 def main():
-    result = ""
-    print(result)
     return render_template('index.html')
+
+@app.route('/storeConfig')
+def storeConfig():
+    pass
 
 @app.route('/query')
 def queryPage():
@@ -43,25 +45,41 @@ def gamePage():
     print(game_info)
     return render_template('game.html', game_info=game_info, rec_games_info=recommended_games_info)
 
+@app.route('/getPropertiesForClass', methods=['GET', 'POST'])
+def getPropertiesForClass():
+    cur_class_name = request.args.get("class_name")
+    class_properties_dict = getClassProperties()
+    cur_prop_list = class_properties_dict[cur_class_name]
+    result = {}
+    result["vals"] = cur_prop_list
+    return result
+
 @app.route('/visualize')
 def visualizationPage():
     class_properties_dict = getClassProperties()
-    print(class_properties_dict)
-    return render_template('visualization.html', class_properties_dict=class_properties_dict)
+    class_list = list(class_properties_dict.keys())
+    return render_template('visualization.html', class_list=class_list)
 
 @app.route('/getVisualizationData', methods=['GET', 'POST'])
 def getVisualizationData():
     class_name = request.args.get("class_name")
     property_name = request.args.get("property_name")
-    result, data_type = generate_visualization_data(class_name, property_name)
-    x_vals = []
-    y_vals = []
-    for key, val in result:
-        x_vals.append(key)
-        y_vals.append(val)
-
+    result = generate_visualization_data(class_name, property_name)
     result_dict = {}
-    result_dict["data_type"] = data_type
-    result_dict["x_vals"] = x_vals
-    result_dict["y_vals"] = y_vals
+
+    if not isinstance(result[0], tuple):
+        result_dict["data_type"] = "continuous"
+        result_dict["x_vals"] = result
+    else:
+        x_vals = []
+        y_vals = []
+        for key, val in result:
+            x_vals.append(key)
+            y_vals.append(val)
+
+        result_dict = {}
+        result_dict["data_type"] = "discrete"
+        result_dict["x_vals"] = x_vals
+        result_dict["y_vals"] = y_vals
+
     return result_dict

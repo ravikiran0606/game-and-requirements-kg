@@ -133,17 +133,16 @@ def generate_visualization_data(class_name, property_name):
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
 
-    # print(results)
-    for result in results['results']['bindings']:
-        store_result.append((result['label']['value'], result['countLabel']['value']))
-
-    return store_result
     #type_of_key = results['results']['bindings'][0]['label']
     '''if ('xml:lang' in type_of_key) or ('datatype' in type_of_key and 'integer' in type_of_key['datatype']):
         return store_result, "discrete"
     if ('datatype' in type_of_key and 'decimal' in type_of_key['datatype']):
         return store_result, "continuous"'''
+    # print(results)
+    for result in results['results']['bindings']:
+        store_result.append((result['label']['value'], result['countLabel']['value']))
 
+    return store_result
 
 def sayHello():
     result = "Hello world"
@@ -281,7 +280,7 @@ def getDevelopers():
 
 def getClassProperties():
     class_properties_dict = {}
-    class_properties_dict['Game'] = ['hasGenre','hasTheme','hasGameMode','soldBy','developedBy','publisherBy','memory_MB',
+    class_properties_dict['Game'] = ['hasGenre','hasTheme','hasGameMode','soldBy','developedBy','publishedBy','memory_MB',
                                      'diskSpace_MB','ratingValue','datePublished']
 
     class_properties_dict['Enterprise'] = ['ratingValue']
