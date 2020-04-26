@@ -1,19 +1,20 @@
 from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
-from app.queries import sayHello, getGameInformation, getClassProperties
+from app.queries import sayHello, getGameInformation, getClassProperties, getDevelopers, getGenres
 from app.queries import generate_visualization_data
 
 @app.route('/')
 def main():
-    # result = generate_visualization_data("Game",'ratingValue')
     result = ""
     print(result)
     return render_template('index.html')
 
 @app.route('/query')
 def queryPage():
-    return render_template('query.html')
+    developer_list = getDevelopers()
+    genre_list = getGenres()
+    return render_template('query.html', developer_list=developer_list, genre_list=genre_list)
 
 @app.route('/game', methods=['GET'])
 def gamePage():
@@ -50,9 +51,15 @@ def visualizationPage():
 def getVisualizationData():
     class_name = request.args.get("class_name")
     property_name = request.args.get("property_name")
-    x_vals = ['giraffes', 'orangutans', 'monkeys', 'abc', 'ravi', 'kiran']
-    y_vals = [20, 14, 23, 20, 15, 10]
+    result, data_type = generate_visualization_data(class_name, property_name)
+    x_vals = []
+    y_vals = []
+    for key, val in result:
+        x_vals.append(key)
+        y_vals.append(val)
+
     result_dict = {}
-    for i,j in zip(x_vals, y_vals):
-        result_dict[i] = j
+    result_dict["data_type"] = data_type
+    result_dict["x_vals"] = x_vals
+    result_dict["y_vals"] = y_vals
     return result_dict

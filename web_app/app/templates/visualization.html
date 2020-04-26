@@ -16,21 +16,21 @@
 
 			$('#visualizeBtn').click(function(){
 
-				var class_name = $("#class_name").val();
-				var property_name = $("#property_name").val();
+				// var class_name = $("#class_name").val();
+				// var property_name = $("#property_name").val();
+				var class_name = "Game";
+				var property_name = "ratingValue";
+
 				console.log(class_name, property_name);
 				console.log("hello world");
 
-				var cur_url = "http://127.0.0.1:5000/getVisualizationData"
+				var cur_url = "http://127.0.0.1:5000/getVisualizationData?class_name="+class_name+"&property_name="+property_name;
+				console.log(cur_url);
+
 				Plotly.d3.json(cur_url).get(function (err, rows) {
 
-					x_vals = [];
-					y_vals = [];
-					for(var key in rows) {
-					  var value = rows[key];
-					  x_vals.push(key);
-					  y_vals.push(value);
-					}
+					x_vals = rows["x_vals"];
+					y_vals = rows["y_vals"];
 
 					console.log(x_vals);
 					console.log(y_vals);
@@ -48,7 +48,12 @@
 					var data2 = [{
 					  values: y_vals,
 					  labels: x_vals,
-					  type: 'pie'
+					  type: 'pie',
+					  transforms: [{
+						type: 'sort',
+						target: 'values',
+						order: 'descending'
+					  }]
 					}];
 
 					Plotly.newPlot('plot_2', data2);

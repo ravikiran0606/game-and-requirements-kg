@@ -178,3 +178,11 @@ def getGameInformation(game_id):
 def getClassProperties():
     class_properties_dict = {}
     return class_properties_dict
+
+def getGenres():
+    genre_list = []
+    return genre_list
+
+def getDevelopers():
+    developer_list = []
+    return developer_list
