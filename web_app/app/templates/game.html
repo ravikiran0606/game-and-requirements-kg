@@ -35,77 +35,86 @@
                         <div class="w3-container">
                             <div class="w3-row">
                                 <header class="w3-dark-gray w3-center">
-                                    <h1>Empyre: Lords of the Sea Gates</h1>
+                                    <h1>{{game_info.name}}</h1>
                                 </header>
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Game Summary:</label>
-                                <p>Featuring a top-down isometric presentation, Empyre: Lords of the Sea Gates will rekindle old-school PC RPG fans with feelings of some of
-                                the classic story driven RPGs of the 90s. While the combat should feel familiar to veteran players, there’s a new twist in that the game
-                                uses a hybrid Real Time/Turn-based System. Players can enter a “Planning Mode” where they choose actions for each character in their party
-                                while combat is paused, and when entering into the “Action Mode” all characters will perform simultaneously, giving players complete control
-                                over their party while presenting a streamlined combat system that eliminates waiting for each character to act in sequence.</p>
+                                {{game_info.game_summary}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Released Year:</label>
-                                2017
+                                {{game_info.released_year}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Supported Platforms:</label>
-                                PC (Microsoft Windows)
+                                {{game_info.platform_name}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Developers:</label>
-                                Coin Operated Games
+                                {{game_info.developer_name}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Publishers:</label>
-                                Coin Operated Games
+                                {{game_info.publisher_name}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Game Modes:</label>
-                                Single player
+                                {{game_info.game_mode_label}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Genres:</label>
-                                Adventure, Role-playing (RPG), Strategy
+                                {{game_info.genre_label}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Themes:</label>
-                                Fantasy, Historical
+                                {{game_info.theme_label}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Rating:</label>
-                                86
+                                {% if game_info.rating != "-1.0" %}
+                                    {{game_info.rating}}
+                                {% else %}
+                                    Not Available
+                                {% endif %}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Seller:</label>
-                                <a>GK Trade</a>
+                                {{game_info.seller_name}}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Price:</label>
-                                8.29 USD
+                                {% if game_info.price != "Not Available" %}
+                                    {{game_info.price}} USD
+                                {% else %}
+                                    {{game_info.price}}
+                                {% endif %}
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Discount:</label>
-                                52 % OFF
+                                {% if game_info.discount != "Not Available" %}
+                                    {{game_info.discount}} % OFF
+                                {% else %}
+                                    {{game_info.discount}}
+                                {% endif %}
+
                             </div>
 
                             <div class="w3-row w3-margin-top">
                                 <label>Purchase Link:</label>
-                                <a href="https://www.g2a.com/en-us/galactic-inheritors-steam-gift-global-i10000001739001">https://www.g2a.com/en-us/galactic-inheritors-steam-gift-global-i10000001739001</a>
+                                <a href="{{game_info.url}}">{{game_info.url}}</a>
                             </div>
 
                         </div>

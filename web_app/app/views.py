@@ -41,8 +41,9 @@ def gamePage():
              Note:
     '''
     game_id = request.args.get("game_id")
+    if game_id is None:
+        game_id = "mig_0"
     game_info, recommended_games_info = getGameInformation(game_id)
-    print(game_info)
     return render_template('game.html', game_info=game_info, rec_games_info=recommended_games_info)
 
 @app.route('/getPropertiesForClass', methods=['GET', 'POST'])
