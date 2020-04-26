@@ -19,7 +19,7 @@ def queryPage():
 def gamePage():
     '''
     pass game_id as 'mig_0'. do not pass the namespace -> mgns
-    :return: game_info ---> dictionary (key, value pair with values being list)
+    :return: game_info ---> dictionary (key, value pair with values being string)
                     keys are:
                     1. game_summary
                     2. name
@@ -35,24 +35,30 @@ def gamePage():
                     12. price
                     13. discount
                     14. url
-             Note: There would be no key of the above name present in the dictionary if there isn't a relation present.
+             Note:
     '''
     game_id = request.args.get("game_id")
     game_info, recommended_games_info = getGameInformation(game_id)
+    print(game_info)
     return render_template('game.html', game_info=game_info, rec_games_info=recommended_games_info)
 
 @app.route('/visualize')
 def visualizationPage():
     class_properties_dict = getClassProperties()
+    print(class_properties_dict)
     return render_template('visualization.html', class_properties_dict=class_properties_dict)
 
 @app.route('/getVisualizationData', methods=['GET', 'POST'])
 def getVisualizationData():
     class_name = request.args.get("class_name")
     property_name = request.args.get("property_name")
-    x_vals = ['giraffes', 'orangutans', 'monkeys', 'abc', 'ravi', 'kiran']
+    visualization_data = generate_visualization_data(class_name,property_name)
+    return visualization_data
+
+
+    '''x_vals = ['giraffes', 'orangutans', 'monkeys', 'abc', 'ravi', 'kiran']
     y_vals = [20, 14, 23, 20, 15, 10]
     result_dict = {}
     for i,j in zip(x_vals, y_vals):
         result_dict[i] = j
-    return result_dict
+    return result_dict'''
