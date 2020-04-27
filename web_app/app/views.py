@@ -4,9 +4,10 @@ import io
 import numpy as np
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
 from app.queries import getGameInformation, getClassProperties, getGenres, getLinkedDeviceData, getRecommendedGameInformation
-from app.queries import generate_visualization_data, final_query
+from app.queries import generate_visualization_data, final_query, getGameRequirementsInformation
 
 gl_device_config = None
+gl_device_config_string = None
 gl_embeddings_model = None
 
 def load_vectors(embeddings_file):
@@ -26,14 +27,17 @@ def main():
 
 @app.route('/storeConfig', methods=['GET', 'POST'])
 def storeConfig():
-    global gl_device_config, gl_embeddings_model
+    global gl_device_config, gl_embeddings_model, gl_device_config_string
 
-    embeddings_file_name = "game_embeddings_constructed_with_fasttext.vec"
-    gl_embeddings_model = load_vectors(embeddings_file_name)
+    if gl_embeddings_model is None:
+        embeddings_file_name = "game_embeddings_constructed_with_fasttext.vec"
+        gl_embeddings_model = load_vectors(embeddings_file_name)
 
     gl_device_config, valid_flag = getLinkedDeviceData(request.form)
     print(gl_device_config)
+    gl_device_config_string = str(gl_device_config["ram_MB"]) + " MB RAM, " + str(gl_device_config["hdd_space_MB"]) + " MB HDD, " + "Processor = " + gl_device_config["processor_val"] + ", Graphics card = " + gl_device_config["graphics_card_val"]
 
+    print(valid_flag)
     if valid_flag == 1:
         return "<h3 class=\"w3-green\">Successfully stored the device configuration!</h3>"
     else:
@@ -78,18 +82,22 @@ def gamePage():
                     14. url
              Note:
     '''
-    global gl_device_config, gl_embeddings_model
+    global gl_device_config, gl_embeddings_model, gl_device_config_string
 
     game_id = request.args.get("game_id")
     if game_id is None:
         game_id = "mig_0"
+
     game_info = getGameInformation(game_id)
+    game_req_list = getGameRequirementsInformation(game_id)
+
     recommended_games_info = getRecommendedGameInformation(game_id, gl_device_config, gl_embeddings_model)
     recommended_games_list = []
     for i in range(1, 6):
         recommended_games_list.append(recommended_games_info[i])
     print(recommended_games_info)
-    return render_template('game.html', game_info=game_info, rec_games_list=recommended_games_list)
+
+    return render_template('game.html', game_info=game_info, device_config_str=gl_device_config_string, game_req_list=game_req_list, rec_games_list=recommended_games_list)
 
 @app.route('/getPropertiesForClass', methods=['GET', 'POST'])
 def getPropertiesForClass():

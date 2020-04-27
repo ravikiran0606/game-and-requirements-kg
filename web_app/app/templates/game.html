@@ -117,6 +117,26 @@
                                 <a href="{{game_info.url}}">{{game_info.url}}</a>
                             </div>
 
+                            <div class="w3-row w3-margin-top">
+                                <label>Game Minimum Requirements:</label>
+                                <ul>
+                                    {% if game_req_list %}
+                                        {% for cur_req in game_req_list %}
+                                            <li>{{cur_req}}</li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <li>Not Available</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <div class="w3-row w3-margin-top">
+                                <label>User Device Configuration:</label>
+                                <ul>
+                                    <li>{{device_config_str}}</li>
+                                </ul>
+                            </div>
+
                         </div>
                     </div>
                 </div>

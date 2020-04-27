@@ -265,9 +265,46 @@ def getGameInformation(game_id):
     else:
         game_info_dict['url'] = 'Not Available'
 
-
     return game_info_dict
 
+
+def getGameRequirementsInformation(game_id):
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery('''
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX mgns: <http://inf558.org/games#>
+            PREFIX schema: <http://schema.org/>
+            PREFIX sc: <http://purl.org/science/owl/sciencecommons/>
+            SELECT ?game_id ?memory_val ?disk_val ?p_name ?g_name
+            WHERE{
+              ?game_id a mgns:Game .
+              FILTER(?game_id=mgns:''' + str(game_id) + ''')
+              ?game_id mgns:hasMSD ?msd_id .
+              ?msd_id mgns:memory_MB ?memory_val .
+              ?msd_id mgns:diskSpace_MB ?disk_val .
+              ?msd_id mgns:processor ?proc_id .
+              ?proc_id schema:name ?p_name .
+              ?msd_id mgns:graphics ?gr_id .
+              ?gr_id schema:name ?g_name .
+            }
+            ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    game_req_list = []
+    for result in results['results']['bindings']:
+        memory_val = result['memory_val']['value']
+        disk_val = result['disk_val']['value']
+        p_name = result['p_name']['value']
+        g_name = result['g_name']['value']
+        cur_req_string = str(memory_val) + " MB RAM, " + str(disk_val) + " MB HDD, " + "Processor = " + p_name + ", Graphics card = " + g_name
+        game_req_list.append(cur_req_string)
+
+    for i in range(0, len(game_req_list)-1):
+        game_req_list[i] = game_req_list[i] + " (or) "
+
+    return game_req_list
 
 def getRecommendedGameInformation(game_id, device_config, embeddings_model):
     rating_threshold = 80
