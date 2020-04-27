@@ -196,7 +196,7 @@ class GameKG:
         #self.define_properties()
 
     def storeKG(self, kg_file_name):
-        self.my_kg.serialize(kg_file_name, format="turtle")
+        self.my_kg.serialize(kg_file_name, format="nt")
 
     def __convertSizeToMB(self, cur_size):
         cur_size = cur_size.lower()
@@ -910,4 +910,4 @@ if __name__ == "__main__":
     seconds_elapsed = cur_time - start_time
     print("7. IGDB Games - Seconds Elapsed = ", seconds_elapsed)
 
-    my_game_kg.storeKG("Game_KG.ttl")
+    my_game_kg.storeKG("Game_KG.nt")
