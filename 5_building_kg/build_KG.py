@@ -196,7 +196,7 @@ class GameKG:
         #self.define_properties()
 
     def storeKG(self, kg_file_name):
-        self.my_kg.serialize(kg_file_name, format="nt")
+        self.my_kg.serialize(kg_file_name, format="turtle")
 
     def __convertSizeToMB(self, cur_size):
         cur_size = cur_size.lower()
@@ -387,7 +387,7 @@ class GameKG:
         self.my_kg.add((cur_uri, RDF.type, self.graphics_global))
         self.my_kg.add((cur_uri, self.SCHEMA['name'], Literal(cur_val["product_name"], lang="en")))
         self.my_kg.add((cur_uri, self.SCHEMA['url'], Literal(cur_val["product_url"], lang="en")))
-        self.my_kg.add((cur_uri, self.SCHEMA['g3dMark'], Literal(cur_val["g3d_mark"], datatype=XSD.integer)))
+        self.my_kg.add((cur_uri, self.MGNS['g3dMark'], Literal(cur_val["g3d_mark"], datatype=XSD.integer)))
 
         try:
             if len(cur_val['gpu_chip']) != 0:
@@ -910,4 +910,4 @@ if __name__ == "__main__":
     seconds_elapsed = cur_time - start_time
     print("7. IGDB Games - Seconds Elapsed = ", seconds_elapsed)
 
-    my_game_kg.storeKG("Game_KG.nt")
+    my_game_kg.storeKG("Game_KG.ttl")

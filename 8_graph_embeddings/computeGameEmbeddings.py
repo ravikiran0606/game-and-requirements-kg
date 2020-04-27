@@ -88,6 +88,14 @@ def print_word_vecs(wordVectors, outFileName):
         outFile.write('\n')
     outFile.close()
 
+def generateShortURI(input_uri):
+    cur_list = input_uri.split("_")
+    short_uri = ""
+    for cur_val in cur_list[:-1]:
+        short_uri += cur_val[0]
+    short_uri += "_" + cur_list[-1]
+    return short_uri
+
 if __name__ == "__main__":
     igdb_game_file = "../../data_with_ids/igdb_games.jl"
     igdb_games = constructDictfromJL(igdb_game_file)
@@ -103,7 +111,7 @@ if __name__ == "__main__":
             print("Progress = ", count)
         cur_embedding = computeEmbeddingsForGame(val)
         if cur_embedding is not None:
-            out_embeddings_matrix[key] = cur_embedding
+            out_embeddings_matrix[generateShortURI(key)] = cur_embedding
 
     out_embeddings_file = "game_embeddings_constructed_with_fasttext.vec"
     print_word_vecs(out_embeddings_matrix, out_embeddings_file)
