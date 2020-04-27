@@ -1,10 +1,24 @@
 from app import app
 import os
+import io
+import numpy as np
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
-from app.queries import getGameInformation, getClassProperties, getGenres, getLinkedDeviceData
+from app.queries import getGameInformation, getClassProperties, getGenres, getLinkedDeviceData, getRecommendedGameInformation
 from app.queries import generate_visualization_data, final_query
 
 gl_device_config = None
+gl_embeddings_model = None
+
+def load_vectors(embeddings_file):
+    f = io.open(embeddings_file, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    e_model = {}
+    for line in f:
+        splitLine = line.split()
+        word = splitLine[0]
+        embedding = np.array([float(val) for val in splitLine[1:]])
+        e_model[word] = embedding
+    print("Done.", len(e_model), " words loaded!")
+    return e_model
 
 @app.route('/')
 def main():
@@ -12,7 +26,11 @@ def main():
 
 @app.route('/storeConfig', methods=['GET', 'POST'])
 def storeConfig():
-    global gl_device_config
+    global gl_device_config, gl_embeddings_model
+
+    embeddings_file_name = "game_embeddings_constructed_with_fasttext.vec"
+    gl_embeddings_model = load_vectors(embeddings_file_name)
+
     gl_device_config, valid_flag = getLinkedDeviceData(request.form)
     print(gl_device_config)
 
@@ -60,11 +78,18 @@ def gamePage():
                     14. url
              Note:
     '''
+    global gl_device_config, gl_embeddings_model
+
     game_id = request.args.get("game_id")
     if game_id is None:
         game_id = "mig_0"
-    game_info, recommended_games_info = getGameInformation(game_id)
-    return render_template('game.html', game_info=game_info, rec_games_info=recommended_games_info)
+    game_info = getGameInformation(game_id)
+    recommended_games_info = getRecommendedGameInformation(game_id, gl_device_config, gl_embeddings_model)
+    recommended_games_list = []
+    for i in range(1, 6):
+        recommended_games_list.append(recommended_games_info[i])
+    print(recommended_games_info)
+    return render_template('game.html', game_info=game_info, rec_games_list=recommended_games_list)
 
 @app.route('/getPropertiesForClass', methods=['GET', 'POST'])
 def getPropertiesForClass():

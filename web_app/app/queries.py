@@ -1,6 +1,9 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 from collections import defaultdict
 from rltk.similarity import levenshtein_similarity
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.stats import rankdata
 
 
 def generate_visualization_data(class_name, property_name):
@@ -147,7 +150,6 @@ def generate_visualization_data(class_name, property_name):
 def getGameInformation(game_id):
     sparql = SPARQLWrapper("http://localhost:3030/games/query")
     game_info_dict = defaultdict(lambda: set())
-    recommended_games_info_dict = {}
     sparql.setQuery('''
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -264,7 +266,79 @@ def getGameInformation(game_id):
         game_info_dict['url'] = 'Not Available'
 
 
-    return game_info_dict, recommended_games_info_dict
+    return game_info_dict
+
+
+def getRecommendedGameInformation(game_id, device_config, embeddings_model):
+    rating_threshold = 80
+    p_score_device = device_config["processor_score"]
+    g_score_device = device_config["graphics_card_score"]
+    ram_size = device_config["ram_MB"]
+    hdd_size = device_config["hdd_space_MB"]
+
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery('''
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX mgns: <http://inf558.org/games#>
+            PREFIX schema: <http://schema.org/>
+            SELECT ?game_id ?game_name
+            WHERE{
+              ?game_id a mgns:Game .
+              ?game_id schema:name ?game_name .
+              
+              ?game_id mgns:ratingValue ?rating_value .
+              FILTER(?rating_value >= ''' + str(rating_threshold) + ''')
+              
+              ?game_id mgns:hasMSD ?msd_id .
+              ?msd_id mgns:memory_MB ?memory_val .
+              FILTER(?memory_val <= ''' + str(ram_size) + ''')
+              
+              ?msd_id mgns:diskSpace_MB ?disk_val .
+              FILTER(?disk_val <= ''' + str(hdd_size) + ''')
+              
+              ?msd_id mgns:processor ?proc_id .
+              ?proc_id mgns:hasCPUMark ?p_score .
+              FILTER(?p_score <= ''' + str(p_score_device) + ''')
+              
+              ?msd_id mgns:graphics ?gr_id .
+              ?gr_id mgns:g3dMark ?g_score .
+              FILTER(?g_score <= ''' + str(g_score_device) + ''')
+            }
+            ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    game_dict = {}
+    for result in results['results']['bindings']:
+        gid = result['game_id']['value'].split("#")[-1]
+        gname = result['game_name']['value']
+        game_dict[gid] = gname
+
+    short_game_id = game_id.split("#")[-1]
+    cur_game_embed = embeddings_model[short_game_id].reshape(1, -1)
+
+    game_urls = []
+    game_embedding_matrix = []
+    for gid in game_dict.keys():
+        if gid == game_id:
+            continue
+        game_urls.append(gid)
+        game_embedding_matrix.append(embeddings_model[gid])
+
+    game_embedding_matrix = np.array(game_embedding_matrix)
+    cosine_sim_vals = cosine_similarity(cur_game_embed, game_embedding_matrix)
+    ranks = rankdata(-cosine_sim_vals, method="ordinal")
+    top_5_idx = list(np.where(ranks <= 5)[0])
+
+    recommended_games_info_dict = {}
+    for idx, rank in zip(top_5_idx, ranks[top_5_idx]):
+        cur_dict = {}
+        cur_dict["game_id"] = game_urls[idx]
+        cur_dict["game_name"] = game_dict[game_urls[idx]]
+        recommended_games_info_dict[rank] = cur_dict
+
+    return recommended_games_info_dict
 
 def getGenres():
     genre_list = []
@@ -409,10 +483,11 @@ def getCPUs():
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX mgns: <http://inf558.org/games#>
         PREFIX schema: <http://schema.org/>
-        SELECT distinct ?cpu_id ?cpu_name
+        SELECT distinct ?cpu_id ?cpu_name ?cpu_score
         WHERE{
           ?cpu_id a mgns:Processor .
           ?cpu_id schema:name ?cpu_name .
+          ?cpu_id mgns:hasCPUMark ?cpu_score .
         }
         ''')
     sparql.setReturnFormat(JSON)
@@ -420,7 +495,8 @@ def getCPUs():
     for result in results['results']['bindings']:
         cpu_id = result['cpu_id']['value']
         cpu_name = result['cpu_name']['value']
-        cpu_dict[cpu_id] = cpu_name
+        cpu_score = result['cpu_score']['value']
+        cpu_dict[cpu_id] = (cpu_name, cpu_score)
 
     return cpu_dict
 
@@ -433,10 +509,11 @@ def getGPUs():
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX mgns: <http://inf558.org/games#>
         PREFIX schema: <http://schema.org/>
-        SELECT distinct ?gpu_id ?gpu_name
+        SELECT distinct ?gpu_id ?gpu_name ?gpu_score
         WHERE{
           ?gpu_id a mgns:Graphics .
           ?gpu_id schema:name ?gpu_name .
+          ?gpu_id mgns:g3dMark ?gpu_score .
         }
         ''')
     sparql.setReturnFormat(JSON)
@@ -444,7 +521,8 @@ def getGPUs():
     for result in results['results']['bindings']:
         gpu_id = result['gpu_id']['value']
         gpu_name = result['gpu_name']['value']
-        gpu_dict[gpu_id] = gpu_name
+        gpu_score = result['gpu_score']['value']
+        gpu_dict[gpu_id] = (gpu_name, gpu_score)
 
     return gpu_dict
 
@@ -474,15 +552,15 @@ def getLinkedDeviceData(input_device_param_dict):
         max_match_val = None
         max_match_score = -1
         for key, val in cpu_dict.items():
-            cur_score = levenshtein_similarity(processor, val.lower())
+            cur_score = levenshtein_similarity(processor, val[0].lower())
             if cur_score > max_match_score:
                 max_match_score = cur_score
                 max_match_id = key
-                max_match_val = val
+                max_match_val = val[0]
 
         device_config["processor_id"] = max_match_id
         device_config["processor_val"] = max_match_val
-        device_config["processor_score"] = max_match_score
+        device_config["processor_score"] = cpu_dict[max_match_id][1]
     else:
         device_config["processor_id"] = None
         device_config["processor_val"] = None
@@ -498,14 +576,15 @@ def getLinkedDeviceData(input_device_param_dict):
         max_match_val = None
         max_match_score = -1
         for key, val in gpu_dict.items():
-            cur_score = levenshtein_similarity(graphics_card, val.lower())
+            cur_score = levenshtein_similarity(graphics_card, val[0].lower())
             if cur_score > max_match_score:
                 max_match_score = cur_score
                 max_match_id = key
-                max_match_val = val
+                max_match_val = val[0]
+
         device_config["graphics_card_id"] = max_match_id
         device_config["graphics_card_val"] = max_match_val
-        device_config["graphics_card_score"] = max_match_score
+        device_config["graphics_card_score"] = gpu_dict[max_match_id][1]
     else:
         device_config["graphics_card_id"] = None
         device_config["graphics_card_val"] = None

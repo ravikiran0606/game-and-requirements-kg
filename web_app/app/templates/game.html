@@ -130,40 +130,16 @@
 
             <div class="row w3-padding-32">
 
-                <div class="col-lg-2">
-                    <div class="w3-card-4 w3-gray w3-padding">
-                        <a>Empyre: Lords of the Sea Gates</a>
-                        <p>Rating: 98</p>
-                    </div>
-                </div>
-
-                 <div class="col-lg-2">
-                    <div class="w3-card-4 w3-gray w3-padding">
-                        <a>Empyre: Lords of the Sea Gates</a>
-                        <p>Rating: 98</p>
-                    </div>
-                </div>
-
-                 <div class="col-lg-2">
-                    <div class="w3-card-4 w3-gray w3-padding">
-                        <a>Empyre: Lords of the Sea Gates</a>
-                        <p>Rating: 98</p>
-                    </div>
-                </div>
-
-                 <div class="col-lg-2">
-                    <div class="w3-card-4 w3-gray w3-padding">
-                        <a>Empyre: Lords of the Sea Gates</a>
-                        <p>Rating: 98</p>
-                    </div>
-                </div>
-
-                 <div class="col-lg-2">
-                    <div class="w3-card-4 w3-gray w3-padding">
-                        <a>Empyre: Lords of the Sea Gates</a>
-                        <p>Rating: 98</p>
-                    </div>
-                </div>
+                {% if rec_games_list %}
+                    {% for cur_game in rec_games_list %}
+                        <div class="col-lg-2">
+                            <div class="w3-card-4 w3-gray w3-padding">
+                                <h5>{{cur_game.game_name}}</h5>
+                                <a href="http://127.0.0.1:5000/game?game_id={{cur_game.game_id}}">games#{{cur_game.game_id}}</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
             </div>
         </div>
