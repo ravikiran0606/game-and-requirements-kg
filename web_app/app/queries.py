@@ -1,6 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 from collections import defaultdict
-
+from rltk.similarity import levenshtein_similarity
 
 
 def generate_visualization_data(class_name, property_name):
@@ -378,3 +378,141 @@ def final_query(param_dict):
     res["cols"] = cols
     res["data"] = data
     return res
+
+def convertSizeToMB(cur_size):
+    cur_size = cur_size.lower()
+    cur_val = ""
+    for cur_char in cur_size:
+        if cur_char.isdigit():
+            cur_val += cur_char
+        else:
+            break
+
+    cur_val = int(cur_val)
+    cur_unit = cur_size
+
+    if "kb" in cur_unit:
+        cur_val /= 1024
+    elif "gb" in cur_unit:
+        cur_val *= 1024
+    elif "tb" in cur_unit:
+        cur_val *= (1024 * 1024)
+
+    return cur_val
+
+def getCPUs():
+    cpu_dict = {}
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery('''
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX mgns: <http://inf558.org/games#>
+        PREFIX schema: <http://schema.org/>
+        SELECT distinct ?cpu_id ?cpu_name
+        WHERE{
+          ?cpu_id a mgns:Processor .
+          ?cpu_id schema:name ?cpu_name .
+        }
+        ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        cpu_id = result['cpu_id']['value']
+        cpu_name = result['cpu_name']['value']
+        cpu_dict[cpu_id] = cpu_name
+
+    return cpu_dict
+
+def getGPUs():
+    gpu_dict = {}
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery('''
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX mgns: <http://inf558.org/games#>
+        PREFIX schema: <http://schema.org/>
+        SELECT distinct ?gpu_id ?gpu_name
+        WHERE{
+          ?gpu_id a mgns:Graphics .
+          ?gpu_id schema:name ?gpu_name .
+        }
+        ''')
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        gpu_id = result['gpu_id']['value']
+        gpu_name = result['gpu_name']['value']
+        gpu_dict[gpu_id] = gpu_name
+
+    return gpu_dict
+
+def getLinkedDeviceData(input_device_param_dict):
+    device_config = {}
+    valid_flag = 1
+
+    hdd_space = input_device_param_dict["hdd_space"]
+    if len(hdd_space) != 0:
+        device_config["hdd_space_MB"] = convertSizeToMB(hdd_space)
+    else:
+        device_config["hdd_space_MB"] = -1
+        valid_flag = 0
+
+    ram = input_device_param_dict["ram"]
+    if len(ram) != 0:
+        device_config["ram_MB"] = convertSizeToMB(ram)
+    else:
+        device_config["ram_MB"] = -1
+        valid_flag = 0
+
+    # Mapping CPU
+    processor = input_device_param_dict["processor"].lower()
+    cpu_dict = getCPUs()
+    if len(processor) != 0:
+        max_match_id = None
+        max_match_val = None
+        max_match_score = -1
+        for key, val in cpu_dict.items():
+            cur_score = levenshtein_similarity(processor, val.lower())
+            if cur_score > max_match_score:
+                max_match_score = cur_score
+                max_match_id = key
+                max_match_val = val
+
+        device_config["processor_id"] = max_match_id
+        device_config["processor_val"] = max_match_val
+        device_config["processor_score"] = max_match_score
+    else:
+        device_config["processor_id"] = None
+        device_config["processor_val"] = None
+        device_config["processor_score"] = -1
+        valid_flag = 0
+
+    # Mapping GPU
+    graphics_card = input_device_param_dict["graphics_card"].lower()
+    gpu_dict = getGPUs()
+
+    if len(graphics_card) != 0:
+        max_match_id = None
+        max_match_val = None
+        max_match_score = -1
+        for key, val in gpu_dict.items():
+            cur_score = levenshtein_similarity(graphics_card, val.lower())
+            if cur_score > max_match_score:
+                max_match_score = cur_score
+                max_match_id = key
+                max_match_val = val
+        device_config["graphics_card_id"] = max_match_id
+        device_config["graphics_card_val"] = max_match_val
+        device_config["graphics_card_score"] = max_match_score
+    else:
+        device_config["graphics_card_id"] = None
+        device_config["graphics_card_val"] = None
+        device_config["graphics_card_score"] = -1
+        valid_flag = 0
+
+    return device_config, valid_flag
+
+
+

@@ -1,13 +1,10 @@
 from app import app
 import os
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
-from app.queries import getGameInformation, getClassProperties, getGenres
+from app.queries import getGameInformation, getClassProperties, getGenres, getLinkedDeviceData
 from app.queries import generate_visualization_data, final_query
 
-gl_hdd_space = None
-gl_ram = None
-gl_processor = None
-gl_graphics_card = None
+gl_device_config = None
 
 @app.route('/')
 def main():
@@ -15,23 +12,9 @@ def main():
 
 @app.route('/storeConfig', methods=['GET', 'POST'])
 def storeConfig():
-    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
-
-    hdd_space = request.form["hdd_space"]
-    ram = request.form["ram"]
-    processor = request.form["processor"]
-    graphics_card = request.form["graphics_card"]
-
-    gl_hdd_space = hdd_space
-    gl_ram = ram
-    gl_processor = processor
-    gl_graphics_card = graphics_card
-    print([gl_hdd_space, gl_ram, gl_processor, gl_graphics_card])
-
-    valid_flag = 1
-
-    if len(gl_hdd_space) == 0 or len(gl_ram) == 0 or len(gl_processor) == 0 or len(gl_graphics_card) == 0:
-        valid_flag = 0
+    global gl_device_config
+    gl_device_config, valid_flag = getLinkedDeviceData(request.form)
+    print(gl_device_config)
 
     if valid_flag == 1:
         return "<h3 class=\"w3-green\">Successfully stored the device configuration!</h3>"
@@ -40,9 +23,9 @@ def storeConfig():
 
 @app.route('/query')
 def queryPage():
-    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
+    global gl_device_config
 
-    print(gl_hdd_space, gl_ram, gl_processor, gl_graphics_card)
+    print(gl_device_config)
     genre_list = [] #getGenres()
     return render_template('query.html', genre_list=genre_list)
 
