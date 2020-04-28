@@ -401,6 +401,59 @@ def getGenres():
 
     return genre_list
 
+def getThemes():
+    theme_list = []
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery(
+        '''
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX mgns: <http://inf558.org/games#>
+        PREFIX schema: <http://schema.org/>
+        SELECT distinct ?theme_label
+         WHERE{
+          ?game a mgns:Game .
+          ?game mgns:hasTheme ?theme .
+          ?theme rdfs:label ?theme_label .
+}
+        '''
+    )
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        theme_list.append(result['theme_label']['value'])
+
+    return theme_list
+
+def getGameModes():
+    game_mode_list = []
+    sparql = SPARQLWrapper("http://localhost:3030/games/query")
+    sparql.setQuery(
+        '''
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX mgns: <http://inf558.org/games#>
+        PREFIX schema: <http://schema.org/>
+        SELECT distinct ?game_mode_label
+         WHERE{
+          ?game a mgns:Game .
+          ?game mgns:hasGameMode ?game_mode .
+          ?game_mode rdfs:label ?game_mode_label .
+}
+    
+        '''
+    )
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    for result in results['results']['bindings']:
+        game_mode_list.append(result['game_mode_label']['value'])
+
+    return game_mode_list
+
+
+
 def getClassProperties():
     class_properties_dict = {}
     class_properties_dict['Game'] = ['hasGenre','hasTheme','hasGameMode','soldBy','developedBy','publishedBy','memory_MB',
