@@ -3,8 +3,9 @@ import os
 import io
 import numpy as np
 from flask import Flask, flash, render_template, json, request, redirect, session, url_for
-from app.queries import getGameInformation, getClassProperties, getGenres, getLinkedDeviceData, getRecommendedGameInformation
+from app.queries import getGameInformation, getClassProperties, getLinkedDeviceData, getRecommendedGameInformation
 from app.queries import generate_visualization_data, final_query, getGameRequirementsInformation
+from app.queries import getGenres, getThemes, getGameModes
 
 gl_device_config = None
 gl_device_config_string = None
@@ -48,15 +49,18 @@ def queryPage():
     global gl_device_config
 
     print(gl_device_config)
-    genre_list = [] #getGenres()
-    return render_template('query.html', genre_list=genre_list)
+    genre_list = getGenres()
+    game_mode_list = getGameModes()
+    theme_list = getThemes()
+    return render_template('query.html', genre_list=genre_list, theme_list=theme_list, game_mode_list=game_mode_list)
 
 @app.route('/queryData', methods=['GET', 'POST'])
 def queryData():
-    global gl_hdd_space, gl_ram, gl_processor, gl_graphics_card
+    global gl_device_config
+
     input_param_dict = dict(request.form)
     print(input_param_dict)
-    result_dict = final_query(input_param_dict)
+    result_dict = final_query(input_param_dict, gl_device_config)
     return result_dict
 
 

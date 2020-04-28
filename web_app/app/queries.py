@@ -620,7 +620,7 @@ def getMaxDiscountQuery(max_discount):
 def create_query_general(game_name = '', released_year = '',min_rating = '', input_platform = '', input_developer = '', input_publisher = '',
                  input_seller = '', genre = '',theme = '', game_mode = '', min_price = '', max_price = '', min_discount = '',
                  max_discount = ''):
-    select_query = 'select '
+    select_query = 'select distinct'
     query = ''
     query_pattern, select_var = getGameNameQuery()
     query += query_pattern
@@ -685,19 +685,17 @@ def create_query_general(game_name = '', released_year = '',min_rating = '', inp
         if '?discount_in_percent ' not in select_query:
             select_query += select_var
 
-    print(query)
     return query, select_query
-
-
-
 
 def create_query(game_name = '', released_year = '',min_rating = '', input_platform = '', input_developer = '', input_publisher = '',
                  input_seller = '', genre = '',theme = '', game_mode = '', min_price = '', max_price = '', min_discount = '',
-                 max_discount = '',support='all'):
-    ram_size = 1000
-    hdd_size = 2000
-    p_score_device = 500
-    g_score_device = 500
+                 max_discount = '',support='all', device_config=None):
+
+    p_score_device = device_config["processor_score"]
+    g_score_device = device_config["graphics_card_score"]
+    ram_size = device_config["ram_MB"]
+    hdd_size = device_config["hdd_space_MB"]
+
     if support == 'all':
         query,select_query = create_query_general(game_name,released_year,min_rating,input_platform,input_developer,input_publisher,input_seller,
                                                   genre,theme,game_mode,min_price,max_price,min_discount,max_discount)
@@ -725,8 +723,6 @@ def create_query(game_name = '', released_year = '',min_rating = '', input_platf
         }'''
         query += hardware_query
         select_query += '?memory_val ?disk_val '
-        print(query)
-        print(select_query)
         return query,select_query
 
     if support == 'only_not_supported':
@@ -755,14 +751,14 @@ def create_query(game_name = '', released_year = '',min_rating = '', input_platf
         return query, select_query
 
 
-def final_query(param_dict):
+def final_query(param_dict, device_config):
     sparql = SPARQLWrapper("http://localhost:3030/games/query")
     prefix_query = getPrefixQuery()
     query_generated,select_query = create_query(game_name=param_dict["game_name"].lower(),released_year=param_dict["released_year"].lower(),min_rating=param_dict["min_rating"],
                                    input_platform=param_dict["platform"].lower(),input_developer=param_dict['developer'].lower(),input_publisher=param_dict['publisher'].lower(),
                                    input_seller=param_dict['seller'].lower(),genre=param_dict["genre"].lower(),theme=param_dict['theme'].lower(),game_mode=param_dict['game_mode'].lower(),
                                    min_price=param_dict['min_price'],max_price=param_dict['max_price'],min_discount=param_dict['min_discount'],
-                                   max_discount=param_dict['max_discount'],support=param_dict['support'])
+                                   max_discount=param_dict['max_discount'],support=param_dict['support'], device_config=device_config)
     query = prefix_query + select_query + '\n where {' + query_generated + '}'
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)

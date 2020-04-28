@@ -34,6 +34,7 @@
 							columns: table_cols,
 							rowsPerPage: 10,
 							pagination: true,
+							sorting: true,
 
 							formatCell: function(row, key) {
 								if (key === 'game_id') {
@@ -126,17 +127,38 @@
 						<div class="w3-row-padding w3-padding">
 							<div class="w3-col l4">
 								<label>Genre</label>
-								<input name="genre" class="w3-input w3-border w3-round w3-light-gray" type="text">
+								<select class="w3-select w3-border w3-round w3-light-gray" name="genre" id="genre">
+								  <option value="" selected>Select the Genre</option>
+									{% if genre_list %}
+										{% for i in genre_list %}
+											<option value="{{i}}">{{i}}</option>
+										{% endfor %}
+									{% endif %}
+								</select>
 							</div>
 
 							<div class="w3-col l4">
 								<label>Theme</label>
-								<input name="theme" class="w3-input w3-border w3-round w3-light-gray" type="text">
+								<select class="w3-select w3-border w3-round w3-light-gray" name="theme" id="theme">
+								  <option value="" selected>Select the Theme</option>
+									{% if theme_list %}
+										{% for i in theme_list %}
+											<option value="{{i}}">{{i}}</option>
+										{% endfor %}
+									{% endif %}
+								</select>
 							</div>
 
 							<div class="w3-col l4">
 								<label>Game Mode</label>
-								<input name="game_mode" class="w3-input w3-border w3-round w3-light-gray" type="text">
+								<select class="w3-select w3-border w3-round w3-light-gray" name="game_mode" id="game_mode">
+								  <option value="" selected>Select the Game Mode</option>
+									{% if game_mode_list %}
+										{% for i in game_mode_list %}
+											<option value="{{i}}">{{i}}</option>
+										{% endfor %}
+									{% endif %}
+								</select>
 							</div>
 						</div>
 
