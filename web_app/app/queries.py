@@ -427,7 +427,18 @@ def getGameNameQuery():
     ?game_id schema:name ?game_name .
     }
     '''
+    return pattern,'?game_name '
+
+def gameNameField(game_name):
+    pattern = '''
+    {
+    ?game_id schema:name ?game_name .
+    FILTER contains(lcase(str(?game_name)),\"'''+game_name+'''\") .
+    }
+    '''
     return pattern
+
+
 
 def getReleasedYearQuery(released_year):
     pattern = '''
@@ -436,16 +447,7 @@ def getReleasedYearQuery(released_year):
     FILTER(?released_year = ''' + str(released_year) + ''')
     }
     '''
-    return pattern
-
-def getGenreQuery(genre):
-    pattern = '''
-    {
-      ?game_id mgns:hasGenre ?genre .
-      ?genre rdfs:label \"''' + str(genre) + '''\"@en .
-      }
-    '''
-    return pattern
+    return pattern,'?released_year '
 
 def getMinRatingQuery(min_rating):
     pattern = '''
@@ -454,24 +456,261 @@ def getMinRatingQuery(min_rating):
       FILTER(?rating_value > ''' + str(min_rating) + ''')
     }
     '''
-    return pattern
+    return pattern,'?rating_value '
 
-def create_query(released_year = None, genre_label = None, min_rating = None):
+def getSupportedPlatform(platform_name):
+    pattern = '''
+    {
+    ?game_id mgns:supportedPlatform ?platform_id .
+    ?platform_id mgns:platformName ?platform_name .
+    FILTER contains(lcase(str(?platform_name)),\"'''+str(platform_name)+'''\") .
+    }
+    '''
+    return pattern,'?platform_name '
+
+def getDeveloper(developer_name):
+    pattern = '''
+    {
+    ?game_id mgns:developedBy ?developer_id .
+    ?developer_id schema:name ?developer_name .
+    FILTER contains(lcase(str(?developer_name)),\"'''+developer_name+'''\") .
+    }
+    '''
+    return pattern,'?developer_name '
+
+def getPublisher(publisher_name):
+    pattern = '''
+    {
+    ?game_id mgns:publishedBy ?publisher_id .
+    ?publisher_id schema:name ?publisher_name .
+    FILTER contains(lcase(str(?publisher_name)),\"'''+publisher_name+'''\").
+    }
+    '''
+    return pattern,'?publisher_name '
+
+def getSeller(seller_name):
+    pattern = '''
+    {
+    ?game_id mgns:soldBy ?seller_id .
+    ?seller_id schema:name ?seller_name .
+    FILTER contains(lcase(str(?seller_name)),\"'''+seller_name+'''\").
+    }
+    '''
+    return pattern,'?seller_name '
+
+def getGenreQuery(genre):
+    pattern = '''
+    {
+      ?game_id mgns:hasGenre ?genre_id .
+      ?genre_id rdfs:label ?genre .
+      FILTER CONTAINS(lcase(str(?genre)),\"'''+str(genre)+'''\") .
+      }
+    '''
+    return pattern,'?genre '
+
+def getThemeQuery(theme):
+    pattern = '''
+    {
+        ?game_id mgns:hasTheme ?theme_id .
+        ?theme_id rdfs:label ?theme .
+        FILTER CONTAINS(lcase(str(?theme)),\"''' + str(theme) + '''\") .
+    }
+    '''
+    return pattern,'?theme '
+
+def getGameModeQuery(game_mode):
+    pattern = '''
+    {
+    ?game_id mgns:hasGameMode ?game_mode_id .
+    ?game_mode_id rdfs:label ?game_mode .
+    FILTER CONTAINS(lcase(str(?game_mode)),\"''' + str(game_mode) + '''\") .
+    }
+    '''
+    return pattern,'?game_mode '
+
+def getMinPriceQuery(min_price):
+    pattern = '''
+    {
+    ?game_id mgns:price_USD ?price .
+    FILTER(?price > '''+str(min_price)+''') .
+    }
+    '''
+    return pattern,'?price '
+
+def getMaxPriceQuery(max_price):
+    pattern = '''
+        {
+        ?game_id mgns:price_USD ?price .
+        FILTER(?price < ''' + str(max_price) + ''') .
+        }
+        '''
+    return pattern,'?price '
+
+def getMinDiscountQuery(min_discount):
+    pattern = '''
+    {
+    ?game_id mgns:discount_percent ?discount_in_percent .
+    FILTER(?discount_in_percent > ''' + str(min_discount) + ''') .
+    }
+    '''
+    return pattern,'?discount_in_percent '
+
+def getMaxDiscountQuery(max_discount):
+    pattern = '''
+    {
+    ?game_id mgns:discount_percent ?discount_in_percent .
+    FILTER(?discount_in_percent < ''' + str(max_discount) + ''') .
+    }
+    '''
+    return pattern,'?discount_in_percent '
+
+def create_query_general(game_name = '', released_year = '',min_rating = '', input_platform = '', input_developer = '', input_publisher = '',
+                 input_seller = '', genre = '',theme = '', game_mode = '', min_price = '', max_price = '', min_discount = '',
+                 max_discount = ''):
+    select_query = 'select '
     query = ''
-    query += getGameNameQuery()
-    if len(released_year) != 0:
-        query += getReleasedYearQuery(int(released_year))
-    if len(genre_label) != 0:
-        query += getGenreQuery(genre_label)
-    if len(min_rating) != 0:
-        query += getMinRatingQuery(int(min_rating))
-    return query
+    query_pattern, select_var = getGameNameQuery()
+    query += query_pattern
+    select_query += '?game_id '
+    select_query += select_var
+    if game_name != '':
+        query += gameNameField(game_name)
+    if released_year != '':
+        query_pattern, select_var = getReleasedYearQuery(released_year)
+        query += query_pattern
+        select_query += select_var
+    if min_rating != '':
+        query_pattern, select_var = getMinRatingQuery(min_rating)
+        query += query_pattern
+        select_query += select_var
+    if input_platform != '':
+        query_pattern, select_var = getSupportedPlatform(input_platform)
+        query += query_pattern
+        select_query += select_var
+    if input_developer != '':
+        query_pattern, select_var = getDeveloper(input_developer)
+        query += query_pattern
+        select_query += select_var
+    if input_publisher != '':
+        query_pattern, select_var = getPublisher(input_publisher)
+        query += query_pattern
+        select_query += select_var
+    if input_seller != '':
+        query_pattern, select_var = getSeller(input_seller)
+        query += query_pattern
+        select_query += select_var
+    if genre != '':
+        query_pattern, select_var = getGenreQuery(genre)
+        query += query_pattern
+        select_query += select_var
+    if theme != '':
+        query_pattern, select_var = getThemeQuery(theme)
+        query += query_pattern
+        select_query += select_var
+    if game_mode != '':
+        query_pattern, select_var = getGameModeQuery(game_mode)
+        query += query_pattern
+        select_query += select_var
+    if min_price != '':
+        query_pattern, select_var = getMinPriceQuery(min_price)
+        query += query_pattern
+        if '?price ' not in select_query:
+            select_query += select_var
+    if max_price != '':
+        query_pattern, select_var = getMaxPriceQuery(max_price)
+        query += query_pattern
+        if '?price ' not in select_query:
+            select_query += select_var
+    if min_discount != '':
+        query_pattern, select_var = getMinDiscountQuery(min_discount)
+        query += query_pattern
+        if '?discount_in_percent ' not in select_query:
+            select_query += select_var
+    if max_discount != '':
+        query_pattern, select_var = getMaxDiscountQuery(max_discount)
+        query += query_pattern
+        if '?discount_in_percent ' not in select_query:
+            select_query += select_var
+
+    print(query)
+    return query, select_query
+
+
+
+
+def create_query(game_name = '', released_year = '',min_rating = '', input_platform = '', input_developer = '', input_publisher = '',
+                 input_seller = '', genre = '',theme = '', game_mode = '', min_price = '', max_price = '', min_discount = '',
+                 max_discount = '',support='all'):
+    ram_size = 1000
+    hdd_size = 2000
+    p_score_device = 500
+    g_score_device = 500
+    if support == 'all':
+        query,select_query = create_query_general(game_name,released_year,min_rating,input_platform,input_developer,input_publisher,input_seller,
+                                                  genre,theme,game_mode,min_price,max_price,min_discount,max_discount)
+        return query,select_query
+
+    if support == 'only_supported':
+        query,select_query = create_query_general(game_name,released_year,min_rating,input_platform,input_developer,input_publisher,input_seller,
+                                                  genre,theme,game_mode,min_price,max_price,min_discount,max_discount)
+
+        hardware_query = '''{
+              ?game_id mgns:hasMSD ?msd_id .
+              ?msd_id mgns:memory_MB ?memory_val .
+              FILTER(?memory_val <= ''' + str(ram_size) + ''')
+              
+              ?msd_id mgns:diskSpace_MB ?disk_val .
+              FILTER(?disk_val <= ''' + str(hdd_size) + ''')
+              
+              ?msd_id mgns:processor ?proc_id .
+              ?proc_id mgns:hasCPUMark ?p_score .
+              FILTER(?p_score <= ''' + str(p_score_device) + ''')
+              
+              ?msd_id mgns:graphics ?gr_id .
+              ?gr_id mgns:g3dMark ?g_score .
+              FILTER(?g_score <= ''' + str(g_score_device) + ''')
+        }'''
+        query += hardware_query
+        select_query += '?memory_val ?disk_val '
+        print(query)
+        print(select_query)
+        return query,select_query
+
+    if support == 'only_not_supported':
+        query, select_query = create_query_general(game_name, released_year, min_rating, input_platform,
+                                                   input_developer, input_publisher, input_seller,
+                                                   genre, theme, game_mode, min_price, max_price, min_discount,
+                                                   max_discount)
+
+        hardware_query = '''{
+                      ?game_id mgns:hasMSD ?msd_id .
+                      ?msd_id mgns:memory_MB ?memory_val .
+                      
+                      ?msd_id mgns:diskSpace_MB ?disk_val .
+                      
+                      ?msd_id mgns:processor ?proc_id .
+                      ?proc_id mgns:hasCPUMark ?p_score .
+                      
+                      ?msd_id mgns:graphics ?gr_id .
+                      ?gr_id mgns:g3dMark ?g_score .
+                      
+                      FILTER(?memory_val > '''+str(ram_size)+''' || ?disk_val > ''' +str(hdd_size)+''' || ?p_score > ''' +str(p_score_device)+ ''' || ?g_score > ''' +str(g_score_device)+''')  
+                }'''
+        query += hardware_query
+        print(query)
+        print(select_query)
+        return query, select_query
+
 
 def final_query(param_dict):
     sparql = SPARQLWrapper("http://localhost:3030/games/query")
     prefix_query = getPrefixQuery()
-    query_generated = create_query(released_year=param_dict["released_year"], genre_label=param_dict["genre"], min_rating=param_dict["min_rating"])
-    query = prefix_query + 'select *' + '\n where {' + query_generated + '}'
+    query_generated,select_query = create_query(game_name=param_dict["game_name"].lower(),released_year=param_dict["released_year"].lower(),min_rating=param_dict["min_rating"],
+                                   input_platform=param_dict["platform"].lower(),input_developer=param_dict['developer'].lower(),input_publisher=param_dict['publisher'].lower(),
+                                   input_seller=param_dict['seller'].lower(),genre=param_dict["genre"].lower(),theme=param_dict['theme'].lower(),game_mode=param_dict['game_mode'].lower(),
+                                   min_price=param_dict['min_price'],max_price=param_dict['max_price'],min_discount=param_dict['min_discount'],
+                                   max_discount=param_dict['max_discount'],support=param_dict['support'])
+    query = prefix_query + select_query + '\n where {' + query_generated + '}'
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
