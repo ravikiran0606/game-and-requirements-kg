@@ -43,6 +43,33 @@ We designed our own ontology. Our ontology for this project has a total of 7 cla
 
 ### 8. Node Embeddings
 
+We compute the embeddings for each of the game nodes using the fastText pre-trained embeddings as shown in the below figure, 
+
+![NE 1](readme_images/ne1.png)
+
+1. First, we calculate the embeddings for the game's components like name, description, genre, theme, and game mode. 
+2. Then, the game node embedding is created by the weighted average of the individual game components' embeddings. 
+The weights were determined heuristically to build a game recommendation system.
+
+## Personalized Game Recommendation System
+
+We build a personalized game recommendation system using the game node embeddings.
+
+For a given source game and a user device, to recommend the top-5 similar games, we follow the steps below,
+
+1. First, we filter only the games with rating >= 80 among all the games (except the source game).
+2. We then apply a second filter to retain only the games that the user can play on his device (i.e., the game works on the user device)
+3. Finally, we rank those filtered games by the cosine similarity score between their game node embedding and the source game node embedding and display the top-5 recommendations.
+
+## Web-App User Interface:
+
+The user interface of our web application is shown in the below figures,
+
+![UI 1](readme_images/ui1.png)
+
+![UI 2](readme_images/ui2.png)
+
+![UI 3](readme_images/ui3.png)
 
 (readme yet to be completed)
 
