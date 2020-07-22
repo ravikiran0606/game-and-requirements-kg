@@ -9,9 +9,19 @@ Building a Knowledge Graph about Games, Requirements and Purchase source!
 
 ## Modules
 
+The Games Knowledge Graph that we build looks something like this:
+
+<img src="readme_images/kg_intro.png" alt="games_kg" style="zoom:50%;" />
+
+
+
+
+
 ### 1. Crawling
+
 We crawled different types of information from multiple data sources as listed below,
 ​
+
 - Games information was crawled from [IGDB.com](https://www.igdb.com/discover)
 - Information about the system specifications required to play a particular game, the cheapest purchase source was crawled from [G2A.com](https://www.g2a.com)
 - The details about all the CPU's and GPU's was crawled from [Techpowerup.com](https://www.techpowerup.com)
@@ -21,6 +31,10 @@ The code for all these crawling tasks can be found [here](https://github.com/rav
 
 ### 2. Entity Resolution
 We performed multiple entity resolution tasks as listed below,
+
+![entity_resolution](readme_images/entity_resolution.png)
+
+				#### 							IGDB																								G2A
 
 - The first entity resolution task that we handled was mapping the games crawled from IGDB to the games crawled from G2A. This mapping was necessary to enrich the games with information like the device specifications, cheapest purchase source. Code can be found [here](https://github.com/ravikiran0606/Game-and-Requirements-KG/blob/master/2_entity_resolution/ER_igdb_g2a_rijul.py)
 - The second entity linking task that we did was to map the CPU and GPU information from G2A to the CPU, and GPU information crawled from Techpowerup. The entity linking code for the CPU can be found [here](https://github.com/ravikiran0606/Game-and-Requirements-KG/blob/master/2_entity_resolution/ER_g2a_cpu_techpowerup_cpu_v1.py). Code for GPU linking can be found [here](https://github.com/ravikiran0606/Game-and-Requirements-KG/blob/master/2_entity_resolution/ER_g2a_games_gpus_and_techpowerup_gpus.py)
