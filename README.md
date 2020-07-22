@@ -11,7 +11,7 @@ Building a Knowledge Graph about Games, Requirements and Purchase source!
 
 The Games Knowledge Graph that we build looks something like this:
 
-<img src="readme_images/kg_intro.png" alt="games_kg" style="zoom:50%;" />
+<img src="readme_images/kg_intro.png" alt="games_kg" style="zoom:33%;" />
 
 
 
